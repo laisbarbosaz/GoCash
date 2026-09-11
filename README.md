@@ -1,6 +1,7 @@
--> O Go Cash é uma plataforma web de educação financeira aplicada, criada para apoiar estudantes do Ensino Médio no aprendizado de conceitos como planejamento financeiro, orçamento pessoal, consumo consciente e definição de metas financeiras.
+ -> O Go Cash é uma plataforma web de educação financeira aplicada, criada para apoiar estudantes do Ensino Médio no aprendizado de conceitos como planejamento financeiro, orçamento pessoal, consumo consciente e definição de metas financeiras.
 
 - > Objetivos
+  
   Módulos educacionais sobre finanças pessoais.
   
   Atividades interativas para fixação dos conteúdos.
@@ -13,7 +14,7 @@
   
   Segurança e LGPD aplicada em todo o sistema.
 
--> Tecnologias
+ -> Tecnologias
   Frontend: HTML5, CSS3, JavaScript, Bootstrap
   Backend: Python, Django
   Banco de Dados: PostgreSQL
