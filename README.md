@@ -1,37 +1,23 @@
-# GoCash
-O Go Cash é uma plataforma web de educação financeira aplicada, criada para apoiar estudantes do Ensino Médio no aprendizado de conceitos como planejamento financeiro, orçamento pessoal, consumo consciente e definição de metas financeiras.
+-> O Go Cash é uma plataforma web de educação financeira aplicada, criada para apoiar estudantes do Ensino Médio no aprendizado de conceitos como planejamento financeiro, orçamento pessoal, consumo consciente e definição de metas financeiras.
 
-🎯 Objetivos
-Módulos educacionais sobre finanças pessoais.
+- > Objetivos
+  Módulos educacionais sobre finanças pessoais.
+  Atividades interativas para fixação dos conteúdos.
+  Simuladores financeiros para prática.
+  Dashboard educacional para acompanhar evolução.
+  Integração com indicadores econômicos.
+  Segurança e LGPD aplicada em todo o sistema.
 
-Atividades interativas para fixação dos conteúdos.
-
-Simuladores financeiros para prática.
-
-Dashboard educacional para acompanhar evolução.
-
-Integração com indicadores econômicos.
-
-Segurança e LGPD aplicada em todo o sistema.
-
-🛠️ Tecnologias
-Frontend: HTML5, CSS3, JavaScript, Bootstrap
-
-Backend: Python, Django
-
-Banco de Dados: PostgreSQL
-
-API Externa: AwesomeAPI (cotações financeiras)
-
-Deploy: Render + Gunicorn
-
-Versionamento: Git e GitHub
-
-Prototipação: Figma
-
-Gráficos: Chart.js
-
-Segurança: Autenticação Django + Criptografia
+-> Tecnologias
+  Frontend: HTML5, CSS3, JavaScript, Bootstrap
+  Backend: Python, Django
+  Banco de Dados: PostgreSQL
+  API Externa: AwesomeAPI (cotações financeiras)
+  Deploy: Render + Gunicorn
+  Versionamento: Git e GitHub
+  Prototipação: Figma
+  Gráficos: Chart.js
+  Segurança: Autenticação Django + Criptografia
 
 -> Como Executar Localmente
 1. Clonar o repositório
