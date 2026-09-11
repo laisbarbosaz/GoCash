@@ -2,10 +2,15 @@
 
 - > Objetivos
   Módulos educacionais sobre finanças pessoais.
+  
   Atividades interativas para fixação dos conteúdos.
+  
   Simuladores financeiros para prática.
+  
   Dashboard educacional para acompanhar evolução.
+  
   Integração com indicadores econômicos.
+  
   Segurança e LGPD aplicada em todo o sistema.
 
 -> Tecnologias
