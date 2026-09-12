@@ -1,0 +1,27 @@
+#header {
+    background: #1c6b11;
+    color: #ffffff;
+}
+
+#header a:link, #header a:visited {
+    color: #ffffff;
+}
+
+#site-name, #branding h1 {
+    color: #ffffff;
+}
+
+
+.module h2, .module caption, .inline-group h2 {
+    background: #1c6b11;
+    color: #ffffff;
+}
+
+#user-tools a {
+    color: #ffffff;
+}
+
+
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: #1c6b11;
+}
