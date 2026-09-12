@@ -1,8 +1,6 @@
-Sobre o projeto 
-  O Go Cash é uma plataforma web de educação financeira aplicada, voltada principalmente a estudantes do Ensino Médio como ferramenta complementar de aprendizagem. A proposta é ensinar conceitos de orçamento pessoal, planejamento financeiro e consumo consciente por meio de conteúdos educacionais, atividades interativas e simuladores financeiros.
+Sobre o projeto: O Go Cash é uma plataforma web de educação financeira aplicada, voltada principalmente a estudantes do Ensino Médio como ferramenta complementar de aprendizagem. A proposta é ensinar conceitos de orçamento pessoal, planejamento financeiro e consumo consciente por meio de conteúdos educacionais, atividades interativas e simuladores financeiros.
 
 ```python
-Stack
   Back-end: Python + Django
   Banco de dados: PostgreSQL
   Front-end: HTML5, CSS3, JavaScript, Bootstrap
@@ -29,14 +27,13 @@ Fluxo atual: o administrador (superusuário Django por enquanto já que ainda n�
 
 
 Durante a integração com o PostgreSQL, alguns erros comuns de configuração foram identificados e corrigidos, documentados aqui como registro do processo de desenvolvimento:
-  Cache de uma sessão antiga do shell do Django mantendo configurações desatualizadas, tendo que refazer algumas partes.
-  Permissão de schema public negada no PostgreSQL, tendo que fazer um GRANT para o usuário do BD.
+  Cache de uma sessão antiga do shell do Django mantendo configurações desatualizadas, tendo que refazer algumas partes | Permissão de schema public negada no PostgreSQL, tendo que fazer um GRANT para o usuário do BD.
 
 
 Próximos passos: Demais funcionalidades, conforme plano de ensino e seguindo a orientação.
 
 
-Como rodar o projeto localmente
+Como rodar o projeto localmente:
   1. Ativar o ambiente virtual: venv\Scripts\Activate.ps1
   2. Instalar o necessário: pip install -r requirements.txt
   3. Configurar o arquivo .env com as credenciais do PostgreSQL local
