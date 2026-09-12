@@ -25,19 +25,18 @@ O que e como foi implementado:
 - Views, URLs e templates (usando Bootstrap) para a parte pública: listagem de módulos (/modulos/) e detalhe de cada módulo com seus conteúdos (/modulos/<id>/)
 ```
 
-# Fluxo atual: o administrador (superusuário Django por enquanto já que ainda não tem a divisão de usuários) cadastra módulos e conteúdos em /admin -> qualquer visitante consegue visualizar essa lista pelo /modulos/.
+Fluxo atual: o administrador (superusuário Django por enquanto já que ainda não tem a divisão de usuários) cadastra módulos e conteúdos em /admin -> qualquer visitante consegue visualizar essa lista pelo /modulos/.
 
-
-# Durante a integração com o PostgreSQL, alguns erros comuns de configuração foram identificados e corrigidos, documentados aqui como registro do processo de desenvolvimento:
+Durante a integração com o PostgreSQL, alguns erros comuns de configuração foram identificados e corrigidos, documentados aqui como registro do processo de desenvolvimento:
 $$
   Cache de uma sessão antiga do shell do Django mantendo configurações desatualizadas, tendo que refazer algumas partes.
   Permissão de schema public negada no PostgreSQL, tendo que fazer um GRANT para o usuário do BD.
 $$
 
-**Próximos passos**
+Próximos passos
   Demais funcionalides, conforme plano de ensino e seguindo a orientação.
 
-**Como rodar o projeto localmente**
+Como rodar o projeto localmente
   Ativar o ambiente virtual: venv\Scripts\Activate.ps1
 
   Instalar o necessário: pip install -r requirements.txt
