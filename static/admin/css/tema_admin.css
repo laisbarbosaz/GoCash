@@ -1,0 +1,47 @@
+:root {
+    --header-bg: #12460b;
+    --accent: #12460b;
+    --header-color: #ffffff;
+    --breadcrumbs-bg: #12460b;
+    --breadcrumbs-fg: #ffffff;
+    --link-fg: #12460b;
+    --link-hover-color: #0c3308;
+    --link-selected-fg: #0c3308;
+    --primary: #12460b;
+    --primary-fg: #ffffff;
+    --button-bg: #12460b;
+    --button-fg: #ffffff;
+    --button-hover-bg: #0c3308;
+    --default-button-bg: #12460b;
+    --default-button-hover-bg: #0c3308;
+}
+
+#site-name a:link, #site-name a:visited {
+    color: #ffffff;
+}
+
+#site-name, #branding h1 {
+    color: #ffffff;
+}
+
+#user-tools a {
+    color: #ffffff;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: #12460b;
+    color: #ffffff;
+}
+
+#recent-actions-module a {
+    color: #12460b;
+}
+
+#recent-actions-module h2,
+#recent-actions-module h3 {
+    color: #12460b;
+}
+
+.theme-toggle {
+    display: none;
+}
