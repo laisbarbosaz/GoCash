@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Modulo, ConteudoModulo
 
-# Register your models here.
+admin.site.register(Modulo)
+admin.site.register(ConteudoModulo)

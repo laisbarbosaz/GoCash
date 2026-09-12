@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<br>
+<hr>
+<h1 style="color: #000000; font-size: 20px;">{{ modulo.nome_modulo }}</h1>
+<p class="card-text" style="color: #000000; font-size: 18px;">{{ modulo.descricao_modulo }}</p>
+{% for conteudo in modulo.conteudos.all %}
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" style="color: #1c6b11; font-size: large;">{{ conteudo.titulo_conteudo }}</h4>
+            {{ conteudo.explicacao_conteudo|linebreaks }}
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}
