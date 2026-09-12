@@ -2,10 +2,10 @@ Sobre o projeto: O Go Cash é uma plataforma web de educação financeira aplica
 
 ```python
   Back-end: Python + Django
-  Banco de dados: PostgreSQL
-  Front-end: HTML5, CSS3, JavaScript, Bootstrap
-  API externa: AwesomeAPI (cotações e indicadores financeiros)
-  Deploy: Render (Gunicorn)
+  Banco de dados: PostgreSQL 
+  Front-end: HTML5, CSS3, JavaScript, Bootstrap -  -- a implementar desenvolvimento do frontend
+  API externa: AwesomeAPI (cotações e indicadores financeiros) -- a implementar
+  Deploy: Render (Gunicorn)  -- a implementar
   Versionamento: Git e GitHub
   Progresso até aqui
   Funcionalidade 1 — Módulos de aprendizagem em educação financeira
