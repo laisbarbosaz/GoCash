@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<br>
+<h1 style="color: #000000; font-size: 24px;">Módulos de Aprendizagem</h1>
+<div class="row">
+    {% for modulo in modulos %}
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000; font-size: 20px;">{{ modulo.nome_modulo }}</h5>
+                <p class="card-text">{{ modulo.descricao_modulo }}</p>
+                <a href="{% url 'detalhe_modulo' modulo.id %}" class="btn" style="color: #12460b;">Acessar</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
