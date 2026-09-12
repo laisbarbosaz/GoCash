@@ -55,7 +55,7 @@ ROOT_URLCONF = 'gocash.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'gocash' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

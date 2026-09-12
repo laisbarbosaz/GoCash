@@ -1,55 +1,51 @@
- -> O Go Cash é uma plataforma web de educação financeira aplicada, criada para apoiar estudantes do Ensino Médio no aprendizado de conceitos como planejamento financeiro, orçamento pessoal, consumo consciente e definição de metas financeiras.
+Sobre o projeto 
+  O Go Cash é uma plataforma web de educação financeira aplicada, voltada principalmente a estudantes do Ensino Médio como ferramenta complementar de aprendizagem. A proposta é ensinar conceitos de orçamento pessoal, planejamento financeiro e consumo consciente por meio de conteúdos educacionais, atividades interativas e simuladores financeiros.
 
-- > Objetivos
-  
-  Módulos educacionais sobre finanças pessoais.
-  
-  Atividades interativas para fixação dos conteúdos.
-  
-  Simuladores financeiros para prática.
-  
-  Dashboard educacional para acompanhar evolução.
-  
-  Integração com indicadores econômicos.
-  
-  Segurança e LGPD aplicada em todo o sistema.
-
- -> Tecnologias
-  Frontend: HTML5, CSS3, JavaScript, Bootstrap
-  Backend: Python, Django
-  Banco de Dados: PostgreSQL
-  API Externa: AwesomeAPI (cotações financeiras)
-  Deploy: Render + Gunicorn
+```python
+Stack
+  Back-end: Python + Django
+  Banco de dados: PostgreSQL
+  Front-end: HTML5, CSS3, JavaScript, Bootstrap
+  API externa: AwesomeAPI (cotações e indicadores financeiros)
+  Deploy: Render (Gunicorn)
   Versionamento: Git e GitHub
-  Prototipação: Figma
-  Gráficos: Chart.js
-  Segurança: Autenticação Django + Criptografia
+  Progresso até aqui
+  Funcionalidade 1 — Módulos de aprendizagem em educação financeira
+```
 
--> Como Executar Localmente
-1. Clonar o repositório
-  git clone https://github.com/PFC-Go-Cash/GoCash.git
-  cd GoCash
-2. Criar ambiente virtual
-3. Instalar dependências
-4. Configurar banco de dados PostgreSQL
-  Crie um banco chamado gocash.
-  Configure usuário e senha no arquivo settings.py.
-5. Executar migrações
-  python manage.py migrate
-6. Criar superusuário
-  python manage.py createsuperuser
-7. Rodar servidor local
-  python manage.py runserver
-  Acesse em: http://127.0.0.1:8000/
+```python
+Primeira entrega prevista na ficha do PFC: o usuário consegue acessar módulos de conteúdo educacional (ex: orçamento pessoal, cartão de crédito, consumo consciente).
+O que e como foi implementado:
+- Ambiente virtual (venv) e instalação do Django pelo terminal
+- Criação do projeto (gocash) e do app modulos
+- Integração com PostgreSQL via psycopg2-binary, com variáveis sensíveis isoladas em .env usando python-decouple
+- Modelagem dos dados: Modulo (nome, descrição, ordem de exibir) e ConteudoModulo (título, explicação, ordem de exibir), relacionados por ForeignKey
+- Migrações aplicadas ao banco PostgreSQL
+- Registro das models, deixando que o admin cadastre módulos e conteúdos
+- Views, URLs e templates (usando Bootstrap) para a parte pública: listagem de módulos (/modulos/) e detalhe de cada módulo com seus conteúdos (/modulos/<id>/)
+```
 
--> Hospedagem no Render
-1. Criar conta no Render
-2. Conectar ao GitHub e selecionar o repositório Go Cash
-3. Configurar serviço web:
-Build Command:
-pip install -r requirements.txt
-Start Command:
-gunicorn gocash.wsgi:application
-Environment: Python 3.10+
+# Fluxo atual: o administrador (superusuário Django por enquanto já que ainda não tem a divisão de usuários) cadastra módulos e conteúdos em /admin -> qualquer visitante consegue visualizar essa lista pelo /modulos/.
 
-Banco de Dados: PostgreSQL (Render oferece instância gratuita).
+
+# Durante a integração com o PostgreSQL, alguns erros comuns de configuração foram identificados e corrigidos, documentados aqui como registro do processo de desenvolvimento:
+$$
+  Cache de uma sessão antiga do shell do Django mantendo configurações desatualizadas, tendo que refazer algumas partes.
+  Permissão de schema public negada no PostgreSQL, tendo que fazer um GRANT para o usuário do BD.
+$$
+
+**Próximos passos**
+  Demais funcionalides, conforme plano de ensino e seguindo a orientação.
+
+**Como rodar o projeto localmente**
+  Ativar o ambiente virtual: venv\Scripts\Activate.ps1
+
+  Instalar o necessário: pip install -r requirements.txt
+
+  Configurar o arquivo .env com as credenciais do PostgreSQL local
+
+  Rodar as migrações: python manage.py migrate
+
+  Criar um superusuário para acessar a página do admin: python manage.py createsuperuser
+
+  Rodar o servidor: python manage.py runserver
