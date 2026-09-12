@@ -29,22 +29,17 @@ Fluxo atual: o administrador (superusuário Django por enquanto já que ainda n�
 
 
 Durante a integração com o PostgreSQL, alguns erros comuns de configuração foram identificados e corrigidos, documentados aqui como registro do processo de desenvolvimento:
-$$
   Cache de uma sessão antiga do shell do Django mantendo configurações desatualizadas, tendo que refazer algumas partes.
   Permissão de schema public negada no PostgreSQL, tendo que fazer um GRANT para o usuário do BD.
-$$
 
 
-Próximos passos
-  Demais funcionalidades, conforme plano de ensino e seguindo a orientação.
+Próximos passos: Demais funcionalidades, conforme plano de ensino e seguindo a orientação.
 
 
 Como rodar o projeto localmente
-  Ativar o ambiente virtual: venv\Scripts\Activate.ps1
-
-  Instalar o necessário: pip install -r requirements.txt
-
-  Configurar o arquivo .env com as credenciais do PostgreSQL local
+  1. Ativar o ambiente virtual: venv\Scripts\Activate.ps1
+  2. Instalar o necessário: pip install -r requirements.txt
+  3. Configurar o arquivo .env com as credenciais do PostgreSQL local
 
   Rodar as migrações: python manage.py migrate
 
