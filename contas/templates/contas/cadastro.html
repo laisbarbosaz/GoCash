@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    form {
+        max-width: 500px;
+        border: 1px solid #12460b;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 40px auto;
+        background-color: #f9fdf8;
+        text-align: center;
+    }
+
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #0b2608;
+    }
+
+    input.form-control {
+        width: 80%;
+        margin: 0 auto 15px auto;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .form-check {
+        text-align: left;
+        margin: 15px auto;
+        width: 80%;
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+        border: 1px solid #000;
+    }
+
+    .btn-success {
+        background-color: #12460b;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #14540c;
+    }
+
+    .alert {
+        width: 80%;
+        margin: 10px auto;
+        text-align: center;
+    }
+
+    p, a {
+        color: #0b2608;
+        padding: 10px;
+    }
+</style>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} mt-2">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="form-group mb-3">
+    <label for="id_username">Usuário</label>
+    <input type="text" name="username" id="id_username" class="form-control" maxlength="150" required>
+    {% if form.username.errors %}
+      <div class="alert alert-danger mt-1">{{ form.username.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="id_email">E-mail</label>
+    <input type="email" name="email" id="id_email" class="form-control" required>
+    {% if form.email.errors %}
+      <div class="alert alert-danger mt-1">{{ form.email.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="id_password1">Senha</label>
+    <input type="password" name="password1" id="id_password1" class="form-control" required>
+    {% if form.password1.errors %}
+      <div class="alert alert-danger mt-1">{{ form.password1.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="id_password2">Confirmação de senha</label>
+    <input type="password" name="password2" id="id_password2" class="form-control" required>
+    {% if form.password2.errors %}
+      <div class="alert alert-danger mt-1">{{ form.password2.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-check mb-3">
+    <input type="checkbox" name="aceite_termos" id="id_aceite_termos" class="form-check-input" required>
+    <label class="form-check-label" for="id_aceite_termos">
+      Li e aceito os<a href="/conta/termo-de-aceite/" target="_blank">Termos de Uso</a> e <br>a <a href="/conta/politica-de-privacidade/" target="_blank">Política de Privacidade</a>
+    </label>
+    {% if form.aceite_termos.errors %}
+      <div class="alert alert-danger mt-1">{{ form.aceite_termos.errors }}</div>
+    {% endif %}
+  </div>
+
+  <button type="submit" class="btn btn-success">Cadastrar</button>
+
+  <p>Já tenho uma conta? <a href="/conta/login/">Faça login aqui</a>.</p>
+</form>
+
+{% endblock %}

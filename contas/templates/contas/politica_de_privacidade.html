@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .politica-container {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 20px;
+    font-size: 12px; 
+  }
+  .politica-container h2 {
+    color: #12460b;
+    font-weight: 700;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .politica-container h4 {
+    color: #12460b;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  .politica-container p {
+    margin-bottom: 15px;
+  }
+  .politica-container ul {
+    margin-left: 25px;
+    margin-bottom: 15px;
+    list-style-type: disc;
+    color: #333;
+  }
+  .politica-container li {
+    margin-bottom: 5px;
+    color: #333 !important;
+  }
+</style>
+
+<div class="politica-container">
+  <h2>Política de Privacidade</h2>
+  <p>A Política de Privacidade abaixo explica como os dados pessoais são tratados na plataforma de aprendizado da Go Cash.</p>
+
+  <h4>2.1 Responsáveis pelo Tratamento</h4>
+  <p>O controlador dos dados é a própria equipe da Go Cash. Caso alguma instituição parceira solicite adequações ou atualizações, o pedido deverá ser encaminhado ao canal oficial de atendimento: suporte@gocash.com.br.</p>
+
+  <h4>2.2 Dados Pessoais Tratados</h4>
+  <p>São coletados apenas dados básicos necessários para uso da plataforma:</p>
+  <ul>
+    <li>Identificação: nome e e-mail;</li>
+    <li>Credenciais: senha criptografada;</li>
+    <li>Dados acadêmicos: módulos acessados, resultados de quizzes e progresso de aprendizagem;</li>
+    <li>Registros de acesso: data, hora e dispositivo utilizado.</li>
+  </ul>
+  <p>Não são coletados dados sensíveis nem informações financeiras reais.</p>
+
+  <h4>2.3 Finalidades e Hipóteses Legais</h4>
+  <p>Os dados são tratados para:</p>
+  <ul>
+    <li>Execução do contrato de uso da plataforma (cadastro e autenticação);</li>
+    <li>Legítimo interesse educacional (acompanhamento de desempenho e evolução do aprendizado);</li>
+    <li>Cumprimento de obrigação legal (logs de acesso conforme LGPD).</li>
+  </ul>
+
+  <h4>2.4 Compartilhamento e Serviços Externos</h4>
+  <p>Os dados podem ser processados por serviços externos utilizados no projeto:</p>
+  <ul>
+    <li>Render (hospedagem da aplicação);</li>
+    <li>PostgreSQL (armazenamento de dados);</li>
+    <li>SMTP (envio de e-mails de recuperação de senha);</li>
+    <li>AwesomeAPI (consulta de indicadores financeiros, sem envio de dados pessoais).</li>
+  </ul>
+
+  <h4>2.5 Transferência Internacional e Cookies</h4>
+  <p>O processamento pode ocorrer fora do Brasil devido ao uso de serviços em nuvem. São aplicadas salvaguardas de segurança e privacidade. A plataforma utiliza apenas cookies estritamente necessários para autenticação e sessão, sem cookies opcionais.</p>
+
+  <h4>2.6 Retenção e Descarte</h4>
+  <p>Os dados permanecem armazenados enquanto a conta estiver ativa. O usuário pode solicitar exclusão definitiva, incluindo backups e registros associados.</p>
+
+  <h4>2.7 Direitos dos Titulares</h4>
+  <p>O usuário pode exercer seus direitos previstos na LGPD:</p>
+  <ul>
+    <li>Confirmação e acesso aos dados;</li>
+    <li>Correção de informações;</li>
+    <li>Anonimização ou exclusão;</li>
+    <li>Revogação do consentimento;</li>
+    <li>Oposição ao tratamento, quando aplicável.</li>
+  </ul>
+  <p>Solicitações devem ser enviadas para suporte@gocash.com.br.</p>
+
+  <h4>2.8 Segurança, Incidentes e Versões</h4>
+  <p>São aplicadas medidas de segurança como criptografia de senhas e controle de acessos. Em caso de incidente relevante, os titulares e a ANPD serão comunicados. Esta Política é versão 1.0, última atualização em 25/09/2026. Alterações importantes serão comunicadas por meio da própria plataforma ou por comunicação oficial via email (suporte@gocash.com.br).</p>
+</div>
+{% endblock %}
