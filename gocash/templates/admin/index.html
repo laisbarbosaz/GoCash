@@ -1,0 +1,42 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+<div id="content-main">
+{% for app in app_list %}
+    {% if app.app_label != "contas" %}
+        <div class="app-{{ app.app_label }} module">
+            <table>
+                <caption>{{ app.name }}</caption>
+                {% for model in app.models %}
+                    {% if model.name != "Perfil usuarios" %}
+                        <tr>
+                            <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                            <td>
+                                {% if model.add_url %}<a href="{{ model.add_url }}">Adicionar</a>{% endif %}
+                                {% if model.change_url %}<a href="{{ model.change_url }}">Modificar</a>{% endif %}
+                                {% if model.view_only %}<a href="{{ model.admin_url }}">Visualizar</a>{% endif %}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endfor %}
+    <div class="app-logs module">
+        <table>
+            <caption>Auditoria</caption>
+            <tr>
+                <th scope="row">
+                    <a href="{% url 'logs' %}">Logs de Auditoria</a>
+                </th>
+                <td>
+                    <a href="{% url 'logs' %}">Visualizar</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

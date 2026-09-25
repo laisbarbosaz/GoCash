@@ -1,0 +1,121 @@
+.hero-gocash {
+    background: linear-gradient(135deg, #12460b, #2e8b30);
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+.hero-gocash h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-gocash .lead {
+    font-size: 1.15rem;
+    opacity: 0.95;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-gocash .btn-hero {
+    background: #ffffff;
+    color: #12460b;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border: none;
+    padding: 12px 36px;
+    border-radius: 30px;
+    margin-top: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease-in-out;
+}
+
+.hero-gocash .btn-hero:hover {
+    background: #eafbe7;
+    color: #12460b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.intro-texto {
+    max-width: 700px;
+    margin: 0 auto 3rem auto;
+    text-align: left;
+    color: #4a4a4a;
+    font-size: 1.05rem;
+}
+
+.secao-titulo {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.secao-subtitulo {
+    color: #6c757d;
+    margin-bottom: 2rem;
+}
+
+.cotacao-card {
+    border: none;
+    border-radius: 14px;
+    padding: 0.5rem;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cotacao-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(28, 107, 17, 0.12);
+}
+
+.cotacao-icone-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #eafbe7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cotacao-icone-wrap i {
+    color: #12460b;
+    font-size: 1.3rem;
+}
+
+.badge.bg-success {
+    background-color: #12460b !important;
+}
+
+.callout-modulo {
+    background: #eafbe7;
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.callout-modulo p {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+}
+
+.callout-modulo .btn-callout {
+    background: #12460b;
+    color: #ffffff;
+    border-radius: 30px;
+    padding: 10px 30px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.callout-modulo .btn-callout:hover {
+    background: #12460b;
+    color: #ffffff;
+    transform: translateY(-2px);
+}

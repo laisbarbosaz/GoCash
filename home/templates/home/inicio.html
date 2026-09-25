@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'home/css/home.css' %}">
+<br>
+<div class="hero-gocash">
+    <h1>Seja bem vindo</h1>
+    <p class="lead">Sua plataforma de educação financeira. <br> Aprenda sobre orçamento, consumo consciente e planejamento financeiro através dos nossos módulos.</p>
+    <a href="{% url 'listar_modulos' %}" class="btn btn-hero">Explorar módulos</a>
+</div>
+<br>
+<p class="intro-texto">
+    Você sabe o que faz o dólar subir ou cair? E como isso afeta a sua vida? <br>
+    Entender o que está acontecendo no mercado é o primeiro passo para enxergar como decisões econômicas do outro lado do mundo chegam você.
+</p>
+<h3 class="secao-titulo">Cotações do dia</h3>
+<p class="secao-subtitulo">Acompanhadas em tempo real, direto do mercado financeiro.</p>
+
+{% if erro_api %}
+    <div class="alert alert-warning">Não foi possível carregar as cotações no momento. Tente novamente mais tarde.</div>
+{% else %}
+<div class="row">
+    {% for cotacao in cotacoes %}
+    <div class="col-md-4 mb-3">
+        <div class="card cotacao-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="card-title mb-0">{{ cotacao.codigo }}</h5>
+                    <div class="cotacao-icone-wrap">
+                        <i class="bi bi-currency-exchange"></i>
+                    </div>
+                </div>
+                <p class="card-text text-muted">{{ cotacao.nome }}</p>
+                <p class="fs-4 mb-2">R$ {{ cotacao.valor|floatformat:2 }}</p>
+                <span class="badge {% if cotacao.variacao >= 0 %}bg-success{% else %}bg-danger{% endif %}">
+                    <i class="bi {% if cotacao.variacao >= 0 %}bi-arrow-up{% else %}bi-arrow-down{% endif %}"></i>
+                    {{ cotacao.variacao }}%
+                </span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="callout-modulo">
+    <p>Quer entender mais sobre como a economia global funciona?</p>
+    <a href="{% url 'listar_modulos' %}" class="btn btn-callout">Acessar módulo de Economia Global</a>
+</div>
+{% endblock %}
