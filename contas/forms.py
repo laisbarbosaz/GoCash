@@ -26,3 +26,17 @@ class CadastroForm(UserCreationForm):
             usuario.save()
             usuario.perfil.registrar_aceite()
         return usuario
+
+
+class CodigoVerificacaoForm(forms.Form):
+    codigo = forms.CharField(
+        label="Código de verificação",
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'inputmode': 'numeric',
+            'autocomplete': 'one-time-code',
+            'class': 'form-control',
+            'autofocus': True,
+        })
+    )
