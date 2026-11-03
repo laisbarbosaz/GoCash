@@ -1,0 +1,7 @@
+{% if campo.errors %}
+  <div class="erro-campo" role="alert">
+    {% for erro in campo.errors %}
+      <div><i class="bi bi-exclamation-circle-fill"></i><span>{{ erro }}</span></div>
+    {% endfor %}
+  </div>
+{% endif %}

@@ -8,10 +8,11 @@ class CadastroForm(UserCreationForm):
     aceite_termos = forms.BooleanField(
         required=True,
         label=mark_safe(
-            'Li e aceito o <a href="/conta/termo-de-aceite/" target="_blank">Termo de Aceite</a> '
+            'Declaro ter <strong>16 anos ou mais</strong> e que li e aceito os '
+            '<a href="/conta/termos-de-uso/" target="_blank">Termos de Uso</a> '
             'e a <a href="/conta/politica-de-privacidade/" target="_blank">Política de Privacidade</a>.'
         ),
-        error_messages={'required': 'É necessário aceitar os termos para criar sua conta.'}
+        error_messages={'required': 'Para criar sua conta, é necessário ter 16 anos ou mais e aceitar os Termos de Uso e a Política de Privacidade.'}
     )
 
     class Meta:
@@ -39,4 +40,4 @@ class CodigoVerificacaoForm(forms.Form):
             'class': 'form-control',
             'autofocus': True,
         })
-    )
+    )
