@@ -55,7 +55,6 @@
             color: #ffffff;
         }
 
-        /* Mensagens gerais (sucesso, erro, aviso) */
         .mensagens-gocash {
             max-width: 500px;
             margin: 20px auto 0;
@@ -90,7 +89,6 @@
         .alert-gocash.alert-warning { background: #fff7e0; color: #7a5a00; border-left-color: #e0a800; }
         .alert-gocash.alert-info    { background: #e8f3fc; color: #0b4a75; border-left-color: #2b88d8; }
 
-        /* Erros de cada campo do formulário */
         .erro-campo {
             width: 80%;
             margin: -8px auto 12px;
@@ -145,7 +143,7 @@
                             <li><a class="dropdown-item fw-bold" href="{% url 'listar_modulos' %}">Todos os módulos</a></li>
                             <li><hr class="dropdown-divider"></li>
                             {% for modulo in modulos_menu %}
-                                <li><a class="dropdown-item" href="{% url 'detalhe_modulo' modulo.id %}">{{ modulo.nome_modulo }}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'detalhe_modulo' modulo.slug %}">{{ modulo.nome_modulo }}</a></li>
                             {% empty %}
                                 <li><span class="dropdown-item text-muted">Nenhum módulo cadastrado</span></li>
                             {% endfor %}
@@ -153,12 +151,17 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Atividades</a>
+                        <a class="nav-link" href="{% url 'listar_atividades' %}">Atividades</a>
                     </li>
                 </ul>
 
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="nav-link" title="Cada atividade conta só pela sua melhor nota">
+                            <i class="bi bi-coin"></i> {{ cashs_usuario }} Cashs
+                        </span>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             {{ user.username }}
@@ -207,7 +210,6 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mensagens de sucesso somem sozinhas depois de 5 segundos
         setTimeout(function () {
             document.querySelectorAll('.mensagens-gocash .alert-success').forEach(function (el) {
                 bootstrap.Alert.getOrCreateInstance(el).close();

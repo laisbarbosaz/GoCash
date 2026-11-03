@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
 from .forms import CadastroForm, CodigoVerificacaoForm
@@ -49,6 +50,17 @@ class LoginPersonalizado(View):
             enviar_codigo_por_email(usuario, codigo.codigo)
 
             request.session['usuario_2fa_id'] = usuario.id
+
+            proxima_pagina = request.GET.get('next') or request.POST.get('next')
+            if proxima_pagina and url_has_allowed_host_and_scheme(
+                proxima_pagina,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                request.session['proxima_pagina'] = proxima_pagina
+            else:
+                request.session.pop('proxima_pagina', None)
+
             return redirect('verificar_codigo')
 
         messages.error(request, "Usuário ou senha inválidos.")
@@ -84,10 +96,13 @@ class VerificarCodigoView(View):
                 codigo_obj.save()
 
                 usuario = codigo_obj.usuario
+                proxima_pagina = request.session.pop('proxima_pagina', None)
                 login(request, usuario)
                 del request.session['usuario_2fa_id']
 
                 messages.success(request, "Login realizado com sucesso!")
+                if proxima_pagina:
+                    return redirect(proxima_pagina)
                 if usuario.is_staff:
                     return redirect('/admin/')
                 return redirect('/')

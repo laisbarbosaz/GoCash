@@ -62,6 +62,16 @@
         color: #0b2608;
         padding: 10px;
     }
+
+    .form-check-label {
+        line-height: 1.6;
+        color: #0b2608;
+    }
+
+    .form-check-label a {
+        padding: 0;
+        font-weight: 600;
+    }
 </style>
 
 <form method="post">
@@ -98,14 +108,14 @@
   <div class="form-check mb-3">
     <input type="checkbox" name="aceite_termos" id="id_aceite_termos" class="form-check-input" required>
     <label class="form-check-label" for="id_aceite_termos">
-      Declaro ter <strong>16 anos ou mais</strong> e que li e aceito os <a href="{% url 'termos_de_uso' %}" target="_blank">Termos de Uso</a> e <br>a <a href="{% url 'politica_de_privacidade' %}" target="_blank">Política de Privacidade</a>.
+      Declaro ter <strong>16 anos ou mais</strong> e que li e aceito os <a href="{% url 'termos_de_uso' %}" target="_blank">Termos de Uso</a> e a <a href="{% url 'politica_de_privacidade' %}" target="_blank">Política de Privacidade</a>.
     </label>
     {% include "partials/erros_campo.html" with campo=form.aceite_termos %}
   </div>
 
   <button type="submit" class="btn btn-success">Cadastrar</button>
 
-  <p>Já tenho uma conta? <a href="/conta/login/">Faça login aqui</a>.</p>
+  <p>Já tenho uma conta?<a href="/conta/login/">Faça login aqui</a></p>
 </form>
 
 {% endblock %}

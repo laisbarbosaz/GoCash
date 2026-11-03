@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .btn-success { background-color: #12460b; border-color: #12460b; }
+    .btn-success:hover, .btn-success:focus { background-color: #14540c; border-color: #14540c; }
+    /* .erro-campo (definido em base.html) foi pensado para os formulários estreitos e
+       centralizados do cadastro/login; aqui os cartões ocupam a largura toda. */
+    .erro-campo { width: auto; margin: -4px 0 10px; }
+</style>
+
+<br>
+<a href="{% url 'listar_atividades' %}" class="text-decoration-none">&larr; Voltar para as atividades</a>
+
+<p class="text-muted mb-1 mt-3" style="font-size: 0.85rem;">{{ atividade.modulo.nome_modulo }}</p>
+<h1 style="color: #000000; font-size: 24px;">{{ atividade.titulo }}</h1>
+<p class="text-muted">Tentativa {{ numero_tentativa }} de {{ max_tentativas }}</p>
+{% if atividade.descricao %}<p>{{ atividade.descricao }}</p>{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    {% for pergunta in perguntas %}
+    <div class="card mb-3{% if pergunta.sem_resposta %} border-danger{% endif %}">
+        <div class="card-body">
+            <p class="text-muted mb-1" style="font-size: 0.85rem;">Pergunta {{ forloop.counter }} de {{ perguntas|length }}</p>
+            <p class="fw-bold">{{ pergunta.enunciado }}</p>
+            {% if pergunta.sem_resposta %}
+                <div class="erro-campo" role="alert">
+                    <div><i class="bi bi-exclamation-circle-fill"></i><span>Escolha uma alternativa.</span></div>
+                </div>
+            {% endif %}
+
+            {% for alternativa in pergunta.alternativas.all %}
+            <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" name="pergunta_{{ pergunta.id }}"
+                       id="alt_{{ alternativa.id }}" value="{{ alternativa.id }}"
+                       {% if alternativa.id == pergunta.marcada_id %}checked{% endif %} required>
+                <label class="form-check-label" for="alt_{{ alternativa.id }}">{{ alternativa.texto }}</label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-success">Enviar respostas</button>
+    <p class="text-muted mt-2" style="font-size: 0.85rem;">Ao enviar, esta tentativa será contabilizada.</p>
+</form>
+
+{% endblock %}
