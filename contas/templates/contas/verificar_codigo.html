@@ -55,14 +55,6 @@
     }
 </style>
 
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} mt-2">
-      {{ message }}
-    </div>
-  {% endfor %}
-{% endif %}
-
 <form method="post">
     {% csrf_token %}
 
@@ -70,10 +62,9 @@
 
     <div class="form-group mb-3">
         <label for="id_codigo">Código de verificação</label>
-        <input type="text" name="codigo" id="id_codigo" class="form-control" maxlength="6" required>
-        {% if form.codigo.errors %}
-          <div class="alert alert-danger mt-1">{{ form.codigo.errors }}</div>
-        {% endif %}
+        <input type="text" name="codigo" id="id_codigo" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+               class="form-control{% if form.codigo.errors %} is-invalid{% endif %}" required autofocus>
+        {% include "partials/erros_campo.html" with campo=form.codigo %}
     </div>
 
     <button type="submit" class="btn btn-success">Confirmar</button>

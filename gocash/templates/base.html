@@ -55,6 +55,74 @@
             color: #ffffff;
         }
 
+        /* Mensagens gerais (sucesso, erro, aviso) */
+        .mensagens-gocash {
+            max-width: 500px;
+            margin: 20px auto 0;
+            padding: 0 16px;
+        }
+
+        .mensagens-gocash .alert {
+            width: 100%;
+            margin: 0 0 10px;
+            text-align: left;
+        }
+
+        .alert-gocash {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: none;
+            border-left: 4px solid;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-size: 0.95rem;
+            padding-right: 3rem;
+        }
+
+        .alert-gocash > i {
+            font-size: 1.15rem;
+            line-height: 1.3;
+        }
+
+        .alert-gocash.alert-danger  { background: #fdecec; color: #8a1c1c; border-left-color: #d93636; }
+        .alert-gocash.alert-success { background: #eafbe7; color: #12460b; border-left-color: #2e9e24; }
+        .alert-gocash.alert-warning { background: #fff7e0; color: #7a5a00; border-left-color: #e0a800; }
+        .alert-gocash.alert-info    { background: #e8f3fc; color: #0b4a75; border-left-color: #2b88d8; }
+
+        /* Erros de cada campo do formulário */
+        .erro-campo {
+            width: 80%;
+            margin: -8px auto 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #b42318;
+        }
+
+        .erro-campo div {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .erro-campo i {
+            line-height: 1.4;
+        }
+
+        .form-check .erro-campo {
+            width: 100%;
+            margin: 6px 0 0;
+        }
+
+        .form-control.is-invalid {
+            border-color: #d93636 !important;
+            background-image: none;
+        }
+
+        .form-control.is-invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(217, 54, 54, 0.2);
+        }
 
     </style>
 </head>
@@ -110,6 +178,21 @@
             </div>
         </div>
     </nav>
+    {% if messages %}
+    <div class="mensagens-gocash">
+        {% for message in messages %}
+        <div class="alert alert-gocash alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {% if message.tags == 'danger' %}<i class="bi bi-exclamation-circle-fill"></i>
+            {% elif message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+            {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+            {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
 <main class="container mt-4">
         {% block content %}
         {% endblock %}
@@ -123,5 +206,13 @@
         </p>
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mensagens de sucesso somem sozinhas depois de 5 segundos
+        setTimeout(function () {
+            document.querySelectorAll('.mensagens-gocash .alert-success').forEach(function (el) {
+                bootstrap.Alert.getOrCreateInstance(el).close();
+            });
+        }, 5000);
+    </script>
 </body>
-</html>
+</html>

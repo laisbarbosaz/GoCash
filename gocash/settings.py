@@ -141,6 +141,13 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
+# Converte a tag "error" do Django para a classe "danger" do Bootstrap
+from django.contrib.messages import constants as messages_constants
+
+MESSAGE_TAGS = {
+    messages_constants.ERROR: 'danger',
+}
+
 LOGIN_URL = '/conta/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "login"

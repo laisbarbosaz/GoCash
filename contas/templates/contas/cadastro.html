@@ -64,57 +64,43 @@
     }
 </style>
 
-{% if messages %}
-  {% for message in messages %}
-    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} mt-2">
-      {{ message }}
-    </div>
-  {% endfor %}
-{% endif %}
-
 <form method="post">
   {% csrf_token %}
 
   <div class="form-group mb-3">
     <label for="id_username">Usuário</label>
-    <input type="text" name="username" id="id_username" class="form-control" maxlength="150" required>
-    {% if form.username.errors %}
-      <div class="alert alert-danger mt-1">{{ form.username.errors }}</div>
-    {% endif %}
+    <input type="text" name="username" id="id_username" maxlength="150" value="{{ form.username.value|default_if_none:'' }}"
+           class="form-control{% if form.username.errors %} is-invalid{% endif %}" required>
+    {% include "partials/erros_campo.html" with campo=form.username %}
   </div>
 
   <div class="form-group mb-3">
     <label for="id_email">E-mail</label>
-    <input type="email" name="email" id="id_email" class="form-control" required>
-    {% if form.email.errors %}
-      <div class="alert alert-danger mt-1">{{ form.email.errors }}</div>
-    {% endif %}
+    <input type="email" name="email" id="id_email" value="{{ form.email.value|default_if_none:'' }}"
+           class="form-control{% if form.email.errors %} is-invalid{% endif %}" required>
+    {% include "partials/erros_campo.html" with campo=form.email %}
   </div>
 
   <div class="form-group mb-3">
     <label for="id_password1">Senha</label>
-    <input type="password" name="password1" id="id_password1" class="form-control" required>
-    {% if form.password1.errors %}
-      <div class="alert alert-danger mt-1">{{ form.password1.errors }}</div>
-    {% endif %}
+    <input type="password" name="password1" id="id_password1"
+           class="form-control{% if form.password1.errors %} is-invalid{% endif %}" required>
+    {% include "partials/erros_campo.html" with campo=form.password1 %}
   </div>
 
   <div class="form-group mb-3">
     <label for="id_password2">Confirmação de senha</label>
-    <input type="password" name="password2" id="id_password2" class="form-control" required>
-    {% if form.password2.errors %}
-      <div class="alert alert-danger mt-1">{{ form.password2.errors }}</div>
-    {% endif %}
+    <input type="password" name="password2" id="id_password2"
+           class="form-control{% if form.password2.errors %} is-invalid{% endif %}" required>
+    {% include "partials/erros_campo.html" with campo=form.password2 %}
   </div>
 
   <div class="form-check mb-3">
     <input type="checkbox" name="aceite_termos" id="id_aceite_termos" class="form-check-input" required>
     <label class="form-check-label" for="id_aceite_termos">
-      Li e aceito os<a href="/conta/termo-de-aceite/" target="_blank">Termos de Uso</a> e <br>a <a href="/conta/politica-de-privacidade/" target="_blank">Política de Privacidade</a>
+      Declaro ter <strong>16 anos ou mais</strong> e que li e aceito os <a href="{% url 'termos_de_uso' %}" target="_blank">Termos de Uso</a> e <br>a <a href="{% url 'politica_de_privacidade' %}" target="_blank">Política de Privacidade</a>.
     </label>
-    {% if form.aceite_termos.errors %}
-      <div class="alert alert-danger mt-1">{{ form.aceite_termos.errors }}</div>
-    {% endif %}
+    {% include "partials/erros_campo.html" with campo=form.aceite_termos %}
   </div>
 
   <button type="submit" class="btn btn-success">Cadastrar</button>
