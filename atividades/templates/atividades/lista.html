@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .btn-success { background-color: #12460b; border-color: #12460b; }
+    .btn-success:hover, .btn-success:focus { background-color: #14540c; border-color: #14540c; }
+    .btn-outline-success { color: #12460b; border-color: #12460b; }
+    .btn-outline-success:hover, .btn-outline-success:focus { background-color: #12460b; border-color: #12460b; color: #fff; }
+    .badge.bg-success { background-color: #12460b !important; }
+    .badge.tag-andamento { background-color: #ffffff; color: #8a5a1c; border: 1px solid #8a5a1c; }
+</style>
+
+<br>
+<h1 style="color: #000000; font-size: 24px;">Atividades</h1>
+<p class="text-muted">Teste o que você aprendeu em cada módulo. Você tem {{ max_tentativas }} tentativas por atividade.</p>
+
+{% if itens %}
+<div class="row">
+    {% for item in itens %}
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <p class="text-muted mb-1" style="font-size: 0.8rem;">{{ item.atividade.modulo.nome_modulo }}</p>
+                <h5 class="card-title" style="color: #000000; font-size: 20px;">{{ item.atividade.titulo }}</h5>
+                {% if item.atividade.descricao %}
+                    <p class="card-text">{{ item.atividade.descricao }}</p>
+                {% endif %}
+
+                <p class="card-text text-muted" style="font-size: 0.9rem;">
+                    {{ item.qtd_perguntas }} pergunta{{ item.qtd_perguntas|pluralize }}
+                    · {{ item.tentativas_feitas }} de {{ max_tentativas }} tentativas
+                    {% if item.melhor_aproveitamento is not None %}
+                        · melhor nota: {{ item.melhor_aproveitamento }}%
+                    {% endif %}
+                </p>
+
+                {% if item.status == 'concluida' %}
+                    <span class="badge bg-success mb-2">Concluída</span>
+                {% elif item.status == 'em_andamento' %}
+                    <span class="badge tag-andamento mb-2">Em andamento</span>
+                {% else %}
+                    <span class="badge bg-secondary mb-2">Não iniciado</span>
+                {% endif %}
+
+                <div>
+                    {% if item.restantes > 0 %}
+                        <a href="{% url 'responder_atividade' item.atividade.modulo.slug %}" class="btn btn-success btn-sm">
+                            {% if item.tentativas_feitas %}Tentar novamente{% else %}Começar{% endif %}
+                        </a>
+                    {% endif %}
+                    {% if item.ultima_tentativa %}
+                        <a href="{% url 'resultado_atividade' item.atividade.modulo.slug item.ultima_tentativa.numero %}" class="btn btn-outline-success btn-sm">Ver último resultado</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Ainda não há atividades disponíveis. Volte em breve!</p>
+{% endif %}
+
+{% endblock %}

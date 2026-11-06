@@ -1,0 +1,229 @@
+.painel-dash {
+    margin: 24px 0 36px;
+    font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+    color: #1f2a1d;
+}
+
+.painel-dash-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+    margin-bottom: 16px;
+}
+
+.painel-dash .painel-dash-cabecalho h2 {
+    margin: 0;
+    padding: 0;
+    background: none;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0b2608;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.painel-dash .painel-dash-cabecalho p {
+    margin: 0;
+    padding: 0;
+    font-size: 0.9rem;
+    color: #5f6b5c;
+}
+
+.painel-numeros {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.painel-numero {
+    background: #ffffff;
+    border: 1px solid #cfdccb;
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.painel-numero .rotulo {
+    display: block;
+    font-size: 0.85rem;
+    color: #5f6b5c;
+    margin-bottom: 6px;
+}
+
+.painel-numero .valor {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #12460b;
+}
+
+.painel-numero .valor small {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #5f6b5c;
+}
+
+.painel-numero .detalhe {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #5f6b5c;
+}
+
+.painel-numero a.detalhe,
+.painel-numero a.detalhe:visited {
+    color: #12460b;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.painel-graficos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.painel-grafico {
+    background: #ffffff;
+    border: 1px solid #cfdccb;
+    border-radius: 12px;
+    padding: 16px 18px;
+    min-width: 0;
+}
+
+.painel-dash .painel-grafico h3 {
+    margin: 0 0 4px;
+    padding: 0;
+    background: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0b2608;
+    text-transform: none;
+}
+
+.painel-dash .painel-grafico .subtitulo {
+    margin: 0 0 12px;
+    padding: 0;
+    font-size: 0.85rem;
+    color: #5f6b5c;
+}
+
+.painel-grafico .area {
+    position: relative;
+    width: 100%;
+}
+
+.painel-grafico details {
+    margin-top: 12px;
+    font-size: 0.85rem;
+}
+
+.painel-grafico summary {
+    cursor: pointer;
+    color: #12460b;
+    font-weight: 600;
+}
+
+.painel-dash .painel-grafico table {
+    width: 100%;
+    margin-top: 8px;
+    border-collapse: collapse;
+}
+
+.painel-dash .painel-grafico th,
+.painel-dash .painel-grafico td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #e3ece1;
+    background: none;
+    color: #1f2a1d;
+    font-size: 0.85rem;
+}
+
+.painel-dash .painel-grafico th {
+    font-weight: 600;
+    color: #12460b;
+}
+
+.painel-dash .painel-grafico td a,
+.painel-dash .painel-grafico td a:visited,
+.ranking-nota a,
+.lista-dificuldades a {
+    color: #12460b;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.painel-dash .tabela-ranking th,
+.painel-dash .tabela-ranking td {
+    padding: 9px 10px;
+    font-size: 0.95rem;
+}
+
+.painel-dash .tabela-ranking .posicao {
+    width: 48px;
+    font-weight: 700;
+    color: #12460b;
+}
+
+.painel-dash .tabela-ranking .numero {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.painel-dash .tabela-ranking .usuario {
+    font-size: 0.8rem;
+    color: #5f6b5c;
+}
+
+.painel-dash .tabela-ranking tr.eu td {
+    background: #eafbe7;
+}
+
+.ranking-nota {
+    margin: 12px 0 0;
+    font-size: 0.9rem;
+    color: #3d4a3a;
+}
+
+.lista-dificuldades {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.lista-dificuldades li {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.lista-dificuldades .enunciado {
+    display: block;
+    color: #1f2a1d;
+}
+
+.lista-dificuldades .detalhe {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.8rem;
+    color: #5f6b5c;
+}
+
+.painel-vazio {
+    margin: 0;
+    padding: 32px 0;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #5f6b5c;
+}
+
+@media (max-width: 900px) {
+    .painel-graficos {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+}

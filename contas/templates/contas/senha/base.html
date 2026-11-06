@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .caixa-senha {
+        max-width: 420px;
+        border: 2px solid #12460b;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 40px auto;
+        background-color: #f9fdf8;
+        text-align: center;
+        color: #0b2608;
+    }
+
+    .caixa-senha h1 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .caixa-senha p {
+        color: #0b2608;
+    }
+
+    .caixa-senha label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .caixa-senha input.form-control {
+        width: 80%;
+        margin: 0 auto 6px auto;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .caixa-senha .campo {
+        margin-bottom: 14px;
+    }
+
+    .caixa-senha .btn-success {
+        background-color: #12460b;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        border: none;
+    }
+
+    .caixa-senha .btn-success:hover {
+        background-color: #14540c;
+    }
+
+    .caixa-senha a {
+        color: #0b2608;
+        font-weight: 600;
+    }
+
+    .caixa-senha .dica {
+        font-size: 0.85rem;
+        color: #4a4a4a;
+    }
+</style>
+
+<div class="caixa-senha">
+    {% block caixa %}{% endblock %}
+</div>
+
+{% endblock %}

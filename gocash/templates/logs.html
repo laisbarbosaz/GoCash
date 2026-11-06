@@ -1,0 +1,127 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'home/css/dashboard.css' %}?v=4">
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › Logs de auditoria</div>
+{% endblock %}
+
+{% block content %}
+<section class="painel-dash" aria-label="Logs de auditoria">
+    <div class="painel-dash-cabecalho">
+        <h2>Últimos 30 dias</h2>
+        <a href="{% url 'logs_detalhados' %}">Ver a lista completa</a>
+    </div>
+
+    <div class="painel-numeros">
+        <div class="painel-numero">
+            <span class="rotulo">Ações no painel</span>
+            <span class="valor">{{ total }}</span>
+        </div>
+        <div class="painel-numero">
+            <span class="rotulo">Adições</span>
+            <span class="valor">{{ adicoes }}</span>
+        </div>
+        <div class="painel-numero">
+            <span class="rotulo">Alterações</span>
+            <span class="valor">{{ alteracoes }}</span>
+        </div>
+        <div class="painel-numero">
+            <span class="rotulo">Exclusões</span>
+            <span class="valor">{{ exclusoes }}</span>
+        </div>
+    </div>
+
+    <div class="painel-graficos">
+        <div class="painel-grafico">
+            <h3>Por pessoa</h3>
+            {% if por_usuario %}
+                <table>
+                    <thead><tr><th>Usuário</th><th>Ações</th><th>Última ação</th></tr></thead>
+                    <tbody>
+                        {% for linha in por_usuario %}
+                            <tr>
+                                <td>{% if linha.user__first_name %}{{ linha.user__first_name }} {{ linha.user__last_name }} ({{ linha.user__username }}){% else %}{{ linha.user__username }}{% endif %}</td>
+                                <td>{{ linha.total }}</td>
+                                <td>{{ linha.ultima|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="painel-vazio">Nenhuma ação nos últimos 30 dias.</p>
+            {% endif %}
+        </div>
+
+        <div class="painel-grafico">
+            <h3>Por área</h3>
+            {% if por_area %}
+                <table>
+                    <thead><tr><th>Área</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        {% for area, total in por_area %}
+                            <tr><td>{{ area }}</td><td>{{ total }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="painel-vazio">Nenhuma ação nos últimos 30 dias.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="painel-grafico logs-recentes">
+        <h3>Últimas ações</h3>
+        {% if ultimas %}
+            <ul>
+                {% for item in ultimas %}
+                    <li>
+                        <span class="quando">{{ item.quando|date:"d/m/Y H:i" }}</span>
+                        <strong>{{ item.usuario }}</strong> {{ item.verbo }} <strong>{{ item.objeto }}</strong>
+                        <span class="area">({{ item.area }})</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <p><a href="{% url 'logs_detalhados' %}">Ver a lista completa</a></p>
+        {% else %}
+            <p class="painel-vazio">Nenhuma ação registrada ainda.</p>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+    .painel-dash .painel-dash-cabecalho a,
+    .logs-recentes a {
+        color: #12460b;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+    .logs-recentes {
+        margin-top: 16px;
+    }
+    .logs-recentes ul {
+        margin: 0 0 12px;
+        padding: 0;
+        list-style: none;
+    }
+    .logs-recentes li {
+        list-style: none;
+        padding: 8px 0;
+        border-bottom: 1px solid #e3ece1;
+        font-size: 0.9rem;
+    }
+    .logs-recentes .quando {
+        display: inline-block;
+        min-width: 130px;
+        color: #5f6b5c;
+    }
+    .logs-recentes .area {
+        color: #5f6b5c;
+    }
+</style>
+{% endblock %}

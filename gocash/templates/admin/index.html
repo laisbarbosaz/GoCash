@@ -1,0 +1,12 @@
+{% extends "admin/index.html" %}
+{% load dashboards %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block nav-sidebar %}{% include "admin/nav_sidebar.html" %}{% endblock %}
+
+{% block content %}
+{% dashboard_equipe user %}
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

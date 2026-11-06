@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .politica-container {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    margin: 20px;
+    font-size: 12px; 
+  }
+  .politica-container h2 {
+    color: #12460b;
+    font-weight: 700;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .politica-container h4 {
+    color: #12460b;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  .politica-container p {
+    margin-bottom: 15px;
+  }
+  .politica-container ul {
+    margin-left: 25px;
+    margin-bottom: 15px;
+    list-style-type: disc;
+    color: #333;
+  }
+  .politica-container li {
+    margin-bottom: 5px;
+    color: #333 !important;
+  }
+  .politica-container a {
+    color: #12460b;
+    font-weight: 600;
+  }
+</style>
+
+<div class="politica-container">
+  <h2>Política de Privacidade</h2>
+  <p>Esta Política explica quais dados pessoais a Go Cash coleta, para que eles são usados, quem tem acesso a eles e como você pode controlá-los, de acordo com a Lei Geral de Proteção de Dados Pessoais (LGPD, Lei nº 13.709/2018).</p>
+
+  <h4>2.1 Responsável pelo tratamento</h4>
+  <p>O controlador dos dados é a própria equipe da Go Cash. Dúvidas, pedidos e solicitações de instituições parceiras devem ser enviados ao canal oficial de atendimento: <a href="mailto:gocashsuporte@gmail.com">gocashsuporte@gmail.com</a>.</p>
+
+  <h4>2.2 Dados pessoais tratados</h4>
+  <p>Coletamos apenas o necessário para a plataforma funcionar:</p>
+  <ul>
+    <li><strong>Cadastro:</strong> nome, sobrenome, nome de usuário e e-mail;</li>
+    <li><strong>Credenciais:</strong> senha, guardada de forma criptografada (nem a equipe da Go Cash consegue ver a senha original);</li>
+    <li><strong>Aceite dos termos:</strong> a data e a hora em que você aceitou os Termos de Uso e esta Política;</li>
+    <li><strong>Uso educacional:</strong> atividades abertas e enviadas, respostas marcadas, número de tentativas, Cashs e progresso em cada módulo;</li>
+    <li><strong>Preferências:</strong> se você escolheu ou não aparecer no ranking;</li>
+    <li><strong>Segurança:</strong> códigos temporários de verificação enviados por e-mail no login, que expiram em poucos minutos;</li>
+    <li><strong>Registros de acesso:</strong> data e hora do último login e registro das ações feitas no painel administrativo (logs de auditoria);</li>
+    <li><strong>Convites de educador:</strong> o e-mail do educador convidado, quem enviou o convite e quando ele foi usado.</li>
+  </ul>
+  <p>Não coletamos dados sensíveis (como origem racial, religião ou dados de saúde), documentos ou informações financeiras reais, como contas bancárias, cartões ou renda.</p>
+
+  <h4>2.3 Finalidades e hipóteses legais</h4>
+  <p>Os dados são usados para:</p>
+  <ul>
+    <li><strong>Criar e manter a sua conta</strong>, permitir o login e enviar códigos de verificação, links de redefinição de senha e convites de educador (execução do contrato de uso, LGPD art. 7º, V);</li>
+    <li><strong>Registrar o seu progresso e calcular os seus Cashs</strong>, e permitir que educadores e administradores acompanhem o andamento dos alunos (legítimo interesse educacional, LGPD art. 7º, IX);</li>
+    <li><strong>Manter registros de acesso e de ações no painel</strong>, para segurança e cumprimento de obrigações legais (LGPD art. 7º, II);</li>
+    <li><strong>Exibir o seu nome no ranking de Cashs da página inicial</strong> (primeiro nome, inicial do sobrenome, nome de usuário e Cashs), somente com o seu consentimento, dado ao ativar essa opção em Meu perfil. A opção começa desligada e pode ser desligada a qualquer momento (LGPD art. 7º, I).</li>
+  </ul>
+  <p>Os dados não são usados para publicidade e não são vendidos a ninguém.</p>
+
+  <h4>2.4 Quem tem acesso aos dados</h4>
+  <ul>
+    <li><strong>Você:</strong> vê os seus dados em Meu perfil e o seu desempenho em Minhas atividades, na página inicial.</li>
+    <li><strong>Educadores:</strong> veem nome, nome de usuário, e-mail, situação nas atividades, tentativas e Cashs dos alunos, para acompanhar o aprendizado.</li>
+    <li><strong>Administradores:</strong> além do que os educadores veem, gerenciam as contas, os convites e as configurações da plataforma.</li>
+    <li><strong>Visitantes do site:</strong> veem apenas o ranking, e só de quem escolheu participar dele.</li>
+  </ul>
+
+  <h4>2.5 Serviços externos</h4>
+  <p>Para funcionar, a Go Cash usa alguns serviços de terceiros:</p>
+  <ul>
+    <li><strong>Render:</strong> hospedagem da aplicação;</li>
+    <li><strong>PostgreSQL:</strong> banco de dados onde as informações ficam armazenadas;</li>
+    <li><strong>Brevo:</strong> envio de e-mails (códigos de verificação, redefinição de senha e convites). Recebe o seu e-mail e o seu nome de usuário para fazer a entrega;</li>
+    <li><strong>AwesomeAPI:</strong> consulta das cotações do dólar, do euro e do bitcoin. Nenhum dado pessoal é enviado a esse serviço;</li>
+    <li><strong>jsDelivr e Google Fonts:</strong> entregam o visual do site (estilos, gráficos e fontes). Como qualquer site, esses serviços recebem o endereço IP do seu navegador ao carregar os arquivos.</li>
+  </ul>
+
+  <h4>2.6 Transferência internacional, cookies e armazenamento no navegador</h4>
+  <p>Alguns desses serviços funcionam fora do Brasil, então os dados podem ser processados no exterior, com as salvaguardas de segurança oferecidas por eles.</p>
+  <p>A Go Cash usa apenas cookies estritamente necessários: o de sessão, que mantém você conectado, e o de proteção contra envio falso de formulários (CSRF). Não usamos cookies de publicidade nem de rastreamento. O painel de educadores e administradores também guarda no navegador se o menu lateral está aberto ou fechado.</p>
+
+  <h4>2.7 Retenção e exclusão</h4>
+  <ul>
+    <li>Os dados ficam armazenados enquanto a conta existir.</li>
+    <li>Você pode excluir a sua conta a qualquer momento em <strong>Meu perfil</strong>. A exclusão é imediata e apaga a conta, o progresso, as tentativas, as respostas, os Cashs e a participação no ranking.</li>
+    <li>Os códigos de verificação deixam de valer poucos minutos depois de enviados.</li>
+    <li>Registros de acesso e de auditoria podem ser mantidos pelo prazo exigido em lei.</li>
+    <li>Cópias de segurança (backups) são apagadas conforme o ciclo de backups do serviço de hospedagem.</li>
+  </ul>
+
+  <h4>2.8 Seus direitos</h4>
+  <p>Pela LGPD (art. 18), você pode:</p>
+  <ul>
+    <li>Confirmar que tratamos os seus dados e acessá-los;</li>
+    <li>Corrigir dados incompletos ou desatualizados;</li>
+    <li>Pedir a anonimização, o bloqueio ou a exclusão dos dados;</li>
+    <li>Revogar o consentimento, como sair do ranking;</li>
+    <li>Se opor a um tratamento, quando aplicável.</li>
+  </ul>
+  <p>A maior parte disso você faz sozinho em <strong>Meu perfil</strong>: ver os seus dados, corrigir nome e e-mail, sair do ranking e excluir a conta. Para o resto, escreva para <a href="mailto:gocashsuporte@gmail.com">gocashsuporte@gmail.com</a>.</p>
+
+  <h4>2.9 Adolescentes</h4>
+  <p>A Go Cash é destinada a pessoas com 16 anos ou mais. Como usuários de 16 e 17 anos ainda são adolescentes, os dados são tratados no seu melhor interesse (LGPD art. 14): coletamos o mínimo necessário, não usamos os dados para publicidade e só mostramos o nome no ranking com a autorização do próprio usuário.</p>
+
+  <h4>2.10 Segurança e incidentes</h4>
+  <p>Usamos medidas como senhas criptografadas, verificação em duas etapas por código no e-mail, controle de acesso por tipo de conta (aluno, educador e administrador) e registro das ações feitas no painel. Em caso de incidente de segurança que possa trazer risco ou dano relevante, os titulares e a Autoridade Nacional de Proteção de Dados (ANPD) serão comunicados (LGPD art. 48).</p>
+
+  <h4>2.11 Alterações e versão</h4>
+  <p>Esta Política pode ser atualizada. Mudanças importantes serão avisadas na própria plataforma ou por e-mail. Versão 1.1 — última atualização em 06/11/2026.</p>
+
+  <h4>2.12 Referências</h4>
+  <ul>
+    <li>BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Lei Geral de Proteção de Dados Pessoais (LGPD). Disponível em: <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm" target="_blank" rel="noopener">planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm</a>.</li>
+    <li>BRASIL. Lei nº 8.069, de 13 de julho de 1990. Estatuto da Criança e do Adolescente. Disponível em: <a href="https://www.planalto.gov.br/ccivil_03/leis/l8069.htm" target="_blank" rel="noopener">planalto.gov.br/ccivil_03/leis/l8069.htm</a>.</li>
+    <li>BRASIL. Lei nº 15.211, de 17 de setembro de 2025. Estatuto Digital da Criança e do Adolescente. Disponível em: <a href="https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15211.htm" target="_blank" rel="noopener">planalto.gov.br/ccivil_03/_ato2023-2026/2025/lei/l15211.htm</a>.</li>
+  </ul>
+</div>
+{% endblock %}

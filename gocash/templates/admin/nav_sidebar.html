@@ -1,0 +1,40 @@
+<nav class="sticky" id="nav-sidebar" aria-label="Menu do painel">
+  <input type="search" id="nav-filter" hidden aria-hidden="true" tabindex="-1">
+
+  {% url 'admin:index' as url_inicio %}
+  {% url 'admin:atividades_progressoatividade_acompanhamento' as url_acompanhamento %}
+
+  <div class="menu-grupo">
+    <ul>
+      <li><a href="{{ url_inicio }}"{% if request.path == url_inicio %} class="atual" aria-current="page"{% endif %}>Visão geral</a></li>
+    </ul>
+  </div>
+
+  {% for app in available_apps %}
+    <div class="menu-grupo">
+      <p class="menu-titulo">{{ app.name }}</p>
+      <ul>
+        {% for model in app.models %}
+          {% if model.admin_url in request.path|urlencode and request.path != url_acompanhamento %}
+            <li><a href="{{ model.admin_url }}" class="atual" aria-current="page">{{ model.name }}</a></li>
+          {% else %}
+            <li><a href="{{ model.admin_url }}">{{ model.name }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if app.app_label == 'atividades' and perms.atividades.view_progressoatividade %}
+          <li><a href="{{ url_acompanhamento }}"{% if request.path == url_acompanhamento %} class="atual" aria-current="page"{% endif %}>Acompanhamento por módulo</a></li>
+        {% endif %}
+        {% if app.app_label == 'contas' and user.is_superuser %}
+          <li><a href="{% url 'logs' %}"{% if request.path|slice:":6" == "/logs/" %} class="atual" aria-current="page"{% endif %}>Logs de auditoria</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  {% endfor %}
+
+  <div class="menu-grupo menu-rodape">
+    <ul>
+      <li><a href="{% url 'meu_perfil' %}">Meu perfil</a></li>
+      <li><a href="{% url 'pagina_inicial' %}">Ver o site</a></li>
+    </ul>
+  </div>
+</nav>
