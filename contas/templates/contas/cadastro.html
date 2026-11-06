@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .form-cadastro {
+        max-width: 760px;
+        border: 1px solid #12460b;
+        border-radius: 15px;
+        padding: 28px 32px;
+        margin: 40px auto;
+        background-color: #f9fdf8;
+    }
+
+    .form-cadastro h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #0b2608;
+        margin-bottom: 20px;
+    }
+
+    .form-cadastro label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #0b2608;
+    }
+
+    .form-cadastro input.form-control {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .campos-lado-a-lado {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 20px;
+    }
+
+    @media (max-width: 640px) {
+        .form-cadastro {
+            padding: 20px 16px;
+        }
+
+        .campos-lado-a-lado {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .form-cadastro .erro-campo {
+        width: auto;
+        margin: 4px 0 0;
+    }
+
+    .tipo-conta {
+        margin-bottom: 20px;
+    }
+
+    .tipo-conta legend {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0b2608;
+        margin-bottom: 8px;
+    }
+
+    .form-cadastro .tipo-conta label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 400;
+        margin-right: 24px;
+        cursor: pointer;
+    }
+
+    .tipo-conta input {
+        accent-color: #12460b;
+    }
+
+    .campo-convite input.form-control {
+        max-width: 240px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .aviso-educador a {
+        color: #12460b;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .dica-campo {
+        margin: 6px 0 0;
+        font-size: 0.85rem;
+        color: #4a4a4a;
+    }
+
+    .dica-senha {
+        margin: -8px 0 16px;
+    }
+
+    .aviso-educador {
+        font-size: 0.9rem;
+        color: #4a4a4a;
+        margin: -4px 0 16px;
+    }
+
+    .form-cadastro .form-check {
+        margin: 8px 0 20px;
+    }
+
+    .form-check-input {
+        margin-right: 10px;
+        border: 1px solid #000;
+    }
+
+    .form-cadastro .form-check-label {
+        display: inline;
+        font-weight: 400;
+        line-height: 1.6;
+    }
+
+    .form-check-label a {
+        color: #0b2608;
+        font-weight: 600;
+    }
+
+    .rodape-cadastro {
+        text-align: center;
+    }
+
+    .rodape-cadastro p {
+        margin: 14px 0 0;
+        color: #0b2608;
+    }
+
+    .rodape-cadastro p a {
+        color: #0b2608;
+        font-weight: 600;
+    }
+
+    .btn-success {
+        background-color: #12460b;
+        color: #fff;
+        border-radius: 8px;
+        padding: 10px 28px;
+        font-weight: 600;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background-color: #14540c;
+    }
+</style>
+
+<form method="post" class="form-cadastro">
+  {% csrf_token %}
+
+  <h1>Criar conta</h1>
+
+  <fieldset class="tipo-conta">
+    <legend>Quero me cadastrar como</legend>
+    <label><input type="radio" name="tipo_conta" value="aluno" {% if form.tipo_conta.value != 'educador' %}checked{% endif %}> Aluno</label>
+    <label><input type="radio" name="tipo_conta" value="educador" {% if form.tipo_conta.value == 'educador' %}checked{% endif %}> Educador</label>
+    {% include "partials/erros_campo.html" with campo=form.tipo_conta %}
+  </fieldset>
+
+  <div class="campos-lado-a-lado">
+    <div class="mb-3">
+      <label for="id_first_name">Nome</label>
+      <input type="text" name="first_name" id="id_first_name" maxlength="150" autocomplete="given-name" value="{{ form.first_name.value|default_if_none:'' }}"
+             class="form-control{% if form.first_name.errors %} is-invalid{% endif %}" required>
+      {% include "partials/erros_campo.html" with campo=form.first_name %}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_last_name">Sobrenome</label>
+      <input type="text" name="last_name" id="id_last_name" maxlength="150" autocomplete="family-name" value="{{ form.last_name.value|default_if_none:'' }}"
+             class="form-control{% if form.last_name.errors %} is-invalid{% endif %}" required>
+      {% include "partials/erros_campo.html" with campo=form.last_name %}
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="id_username">Usuário</label>
+    <input type="text" name="username" id="id_username" maxlength="150" value="{{ form.username.value|default_if_none:'' }}"
+           class="form-control{% if form.username.errors %} is-invalid{% endif %}" required>
+    {% include "partials/erros_campo.html" with campo=form.username %}
+  </div>
+
+  <div class="campos-lado-a-lado">
+    <div class="mb-3">
+      <label for="id_email">E-mail</label>
+      <input type="email" name="email" id="id_email" value="{{ form.email.value|default_if_none:'' }}"
+             class="form-control{% if form.email.errors %} is-invalid{% endif %}" required>
+      {% include "partials/erros_campo.html" with campo=form.email %}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_confirmar_email">Confirmar e-mail</label>
+      <input type="email" name="confirmar_email" id="id_confirmar_email" value="{{ form.confirmar_email.value|default_if_none:'' }}"
+             class="form-control{% if form.confirmar_email.errors %} is-invalid{% endif %}" required>
+      {% include "partials/erros_campo.html" with campo=form.confirmar_email %}
+    </div>
+  </div>
+
+  <div id="campos-educador">
+    <div class="mb-3 campo-convite">
+      <label for="id_codigo_convite">Código de convite</label>
+      <input type="text" name="codigo_convite" id="id_codigo_convite" maxlength="8" autocomplete="off" value="{{ form.codigo_convite.value|default_if_none:'' }}"
+             class="form-control{% if form.codigo_convite.errors %} is-invalid{% endif %}">
+      {% include "partials/erros_campo.html" with campo=form.codigo_convite %}
+    </div>
+
+    <p class="aviso-educador">Você é ou deseja ser um educador parceiro do projeto? Entre em contato com a equipe (<a href="mailto:gocashsuporte@gmail.com">gocashsuporte@gmail.com</a>) para receber seu convite de cadastro com um código. No cadastro, use o mesmo e-mail que recebeu o convite.</p>
+  </div>
+
+  <div class="campos-lado-a-lado">
+    <div class="mb-3">
+      <label for="id_password1">Senha</label>
+      <input type="password" name="password1" id="id_password1" aria-describedby="dica-senha"
+             class="form-control{% if form.password1.errors %} is-invalid{% endif %}" required>
+      {% include "partials/erros_campo.html" with campo=form.password1 %}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_password2">Confirmar senha</label>
+      <input type="password" name="password2" id="id_password2"
+             class="form-control{% if form.password2.errors %} is-invalid{% endif %}" required>
+      {% include "partials/erros_campo.html" with campo=form.password2 %}
+    </div>
+  </div>
+  <p class="dica-campo dica-senha" id="dica-senha">Pelo menos 8 caracteres. Não pode ser só números, nem uma senha comum (como 12345678), nem muito parecida com o seu nome, usuário ou e-mail.</p>
+
+  <div class="form-check">
+    <input type="checkbox" name="aceite_termos" id="id_aceite_termos" class="form-check-input" required>
+    <label class="form-check-label" for="id_aceite_termos">
+      Declaro ter <strong>16 anos ou mais (caso seja aluno)</strong> e que li e aceito os <a href="{% url 'termos_de_uso' %}" target="_blank">Termos de Uso</a> e a <a href="{% url 'politica_de_privacidade' %}" target="_blank">Política de Privacidade</a>.
+    </label>
+    {% include "partials/erros_campo.html" with campo=form.aceite_termos %}
+  </div>
+
+  <div class="rodape-cadastro">
+    <button type="submit" class="btn btn-success">Cadastrar</button>
+    <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a></p>
+  </div>
+</form>
+
+<script>
+  (function () {
+    var bloco = document.getElementById('campos-educador');
+    var opcoes = document.querySelectorAll('input[name="tipo_conta"]');
+
+    function atualizar() {
+      var educador = document.querySelector('input[name="tipo_conta"]:checked').value === 'educador';
+      bloco.hidden = !educador;
+      bloco.querySelectorAll('input').forEach(function (campo) {
+        campo.required = educador;
+      });
+    }
+
+    opcoes.forEach(function (opcao) {
+      opcao.addEventListener('change', atualizar);
+    });
+    atualizar();
+  })();
+</script>
+
+{% endblock %}

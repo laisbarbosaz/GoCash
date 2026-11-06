@@ -1,0 +1,18 @@
+{% extends "contas/senha/base.html" %}
+{% block caixa %}
+<h1>Esqueci minha senha</h1>
+<p>Digite o e-mail da sua conta. Vamos mandar um link para você criar uma senha nova.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="campo">
+        <label for="id_email">E-mail</label>
+        <input type="email" name="email" id="id_email" maxlength="254" autocomplete="email" value="{{ form.email.value|default_if_none:'' }}"
+               class="form-control{% if form.email.errors %} is-invalid{% endif %}" required autofocus>
+        {% include "partials/erros_campo.html" with campo=form.email %}
+    </div>
+    <button type="submit" class="btn btn-success">Enviar link</button>
+</form>
+
+<p class="mt-3"><a href="{% url 'login' %}">Voltar para o login</a></p>
+{% endblock %}

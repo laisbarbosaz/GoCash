@@ -1,0 +1,9 @@
+{% autoescape off %}Olá, {{ user.get_username }}!
+
+Recebemos um pedido para criar uma senha nova para a sua conta no Go Cash.
+Para continuar, abra o link abaixo:
+
+{{ protocol }}://{{ domain }}{% url 'senha_nova' uidb64=uid token=token %}
+
+O link só funciona uma vez. Se você não pediu isso, pode ignorar este e-mail: sua senha continua a mesma.
+{% endautoescape %}

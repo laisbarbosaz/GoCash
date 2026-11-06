@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Go Cash</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .navbar-gocash .nav-link,
+        .navbar-gocash .navbar-brand,
+        .navbar-gocash .dropdown-toggle {
+            color: #ffffff !important;
+        }
+
+        .navbar-gocash {
+            --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            --bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.5);
+            --bs-navbar-toggler-focus-width: 0.15rem;
+        }
+
+        .navbar-gocash .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.4);
+        }
+
+        .navbar-gocash .dropdown-menu a {
+            color: #12460b !important; 
+        }
+
+        .navbar-gocash .dropdown-item:hover {
+            background-color: #eafbe7;
+            color: #12460b !important;
+        }
+
+        footer.footer a {
+            color: #ffffff !important; 
+            text-decoration: none;
+        }
+
+        html, body {
+            height: 100%;      
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        main {
+            flex: 1; 
+        }
+
+        footer.footer {
+            background-color: #12460b;
+            color: #ffffff;
+            text-align: center;
+            padding: 15px 15px;
+        }
+
+        footer.footer p {
+            margin: 0;
+            color: #ffffff !important;
+        }
+
+        footer.footer p {
+            margin: 0;
+            padding: 0;
+            color: #ffffff !important;
+        }
+
+        a,li {
+            color: #ffffff;
+        }
+
+        .mensagens-gocash {
+            max-width: 500px;
+            margin: 20px auto 0;
+            padding: 0 16px;
+        }
+
+        .mensagens-gocash .alert {
+            width: 100%;
+            margin: 0 0 10px;
+            text-align: left;
+        }
+
+        .alert-gocash {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border: none;
+            border-left: 4px solid;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            font-size: 0.95rem;
+            padding-right: 3rem;
+        }
+
+        .alert-gocash > i {
+            font-size: 1.15rem;
+            line-height: 1.3;
+        }
+
+        .alert-gocash.alert-danger  { background: #fdecec; color: #8a1c1c; border-left-color: #d93636; }
+        .alert-gocash.alert-success { background: #eafbe7; color: #12460b; border-left-color: #2e9e24; }
+        .alert-gocash.alert-warning { background: #fff7e0; color: #7a5a00; border-left-color: #e0a800; }
+        .alert-gocash.alert-info    { background: #e8f3fc; color: #0b4a75; border-left-color: #2b88d8; }
+
+        .erro-campo {
+            width: 80%;
+            margin: -8px auto 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #b42318;
+        }
+
+        .erro-campo div {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .erro-campo i {
+            line-height: 1.4;
+        }
+
+        .form-check .erro-campo {
+            width: 100%;
+            margin: 6px 0 0;
+        }
+
+        .form-control.is-invalid {
+            border-color: #d93636 !important;
+            background-image: none;
+        }
+
+        .form-control.is-invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(217, 54, 54, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-gocash" style="background-color: #12460b;">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold" href="{% url 'pagina_inicial' %}">Go Cash</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuPrincipal">
+                <ul class="navbar-nav me-auto">
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">Painel</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Módulos
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item fw-bold" href="{% url 'listar_modulos' %}">Todos os módulos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% for modulo in modulos_menu %}
+                                <li><a class="dropdown-item" href="{% url 'detalhe_modulo' modulo.slug %}">{{ modulo.nome_modulo }}</a></li>
+                            {% empty %}
+                                <li><span class="dropdown-item text-muted">Nenhum módulo cadastrado</span></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_atividades' %}">Atividades</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'quem_somos' %}">Quem somos</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    {% if not user.is_staff %}
+                    <li class="nav-item">
+                        <span class="nav-link" title="Cada atividade conta só pela sua melhor nota">
+                            <i class="bi bi-coin"></i> {{ cashs_usuario }} Cashs
+                        </span>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'meu_perfil' %}">Meu perfil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Sair</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Entrar/Cadastrar</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% if messages %}
+    <div class="mensagens-gocash">
+        {% for message in messages %}
+        <div class="alert alert-gocash alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {% if message.tags == 'danger' %}<i class="bi bi-exclamation-circle-fill"></i>
+            {% elif message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+            {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+            {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+<main class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>
+          © 2026 Go Cash | 
+          <a href="{% url 'termos_de_uso' %}">Termos de Uso</a> | 
+          <a href="{% url 'politica_de_privacidade' %}">Política de Privacidade</a>
+        </p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        setTimeout(function () {
+            document.querySelectorAll('.mensagens-gocash .alert-success').forEach(function (el) {
+                bootstrap.Alert.getOrCreateInstance(el).close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

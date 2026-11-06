@@ -1,0 +1,42 @@
+<section class="painel-dash" aria-labelledby="ranking-titulo">
+    <div class="painel-dash-cabecalho">
+        <h2 id="ranking-titulo">Ranking de Cashs</h2>
+    </div>
+
+    <div class="painel-grafico">
+        {% if ranking.linhas %}
+            <table class="tabela-ranking">
+                <thead>
+                    <tr>
+                        <th scope="col" class="posicao">#</th>
+                        <th scope="col">Aluno</th>
+                        <th scope="col" class="numero">Atividades concluídas</th>
+                        <th scope="col" class="numero">Cashs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for linha in ranking.linhas %}
+                        <tr{% if linha.eu %} class="eu"{% endif %}>
+                            <td class="posicao">{{ linha.posicao }}º</td>
+                            <td>{{ linha.nome }} <span class="usuario">@{{ linha.usuario }}</span>{% if linha.eu %} <strong>(você)</strong>{% endif %}</td>
+                            <td class="numero">{{ linha.concluidas }}</td>
+                            <td class="numero">{{ linha.cashs }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="painel-vazio">Ninguém no ranking ainda. Faça as atividades e ative a opção em Meu perfil para aparecer aqui.</p>
+        {% endif %}
+
+        {% if not usuario.is_authenticated %}
+            <p class="ranking-nota">Quer aparecer aqui? <a href="{% url 'cadastro' %}">Crie sua conta</a>, faça as atividades e ative o ranking no seu perfil.</p>
+        {% elif aluno and not participa %}
+            <p class="ranking-nota">Você não aparece no ranking. Para participar, ative a opção em <a href="{% url 'meu_perfil' %}">Meu perfil</a>.</p>
+        {% elif aluno and ranking.fora_do_top %}
+            <p class="ranking-nota">Você está em {{ ranking.minha_linha.posicao }}º lugar, com {{ ranking.minha_linha.cashs }} Cashs.</p>
+        {% elif aluno and not ranking.minha_linha %}
+            <p class="ranking-nota">Você ainda não tem Cashs. Faça uma atividade para entrar no ranking.</p>
+        {% endif %}
+    </div>
+</section>
