@@ -43,7 +43,7 @@ Plataforma web gratuita de educação financeira para jovens a partir de 16 anos
 - 128 testes automatizados (`python manage.py test`).
 
 ## Como rodar localmente
-1. Ative o ambiente virtual: `venv\Scripts\Activate.ps1`
+1. Ative o ambiente virtual: `venv\Scripts\Activate`
 2. Instale as dependências: `pip install -r requirements.txt`
 3. Crie o `.env` na raiz com as credenciais do PostgreSQL e do e-mail.
 4. Rode as migrações: `python manage.py migrate`
