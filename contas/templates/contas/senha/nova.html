@@ -1,0 +1,28 @@
+{% extends "contas/senha/base.html" %}
+{% block caixa %}
+{% if validlink %}
+    <h1>Criar senha nova</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="campo">
+            <label for="id_new_password1">Nova senha</label>
+            <input type="password" name="new_password1" id="id_new_password1" aria-describedby="dica-nova-senha" autocomplete="new-password"
+                   class="form-control{% if form.new_password1.errors %} is-invalid{% endif %}" required autofocus>
+            {% include "partials/erros_campo.html" with campo=form.new_password1 %}
+            <p class="dica" id="dica-nova-senha">Pelo menos 8 caracteres. Não pode ser só números, nem uma senha comum (como 12345678), nem muito parecida com o seu nome, usuário ou e-mail.</p>
+        </div>
+        <div class="campo">
+            <label for="id_new_password2">Confirmar nova senha</label>
+            <input type="password" name="new_password2" id="id_new_password2" autocomplete="new-password"
+                   class="form-control{% if form.new_password2.errors %} is-invalid{% endif %}" required>
+            {% include "partials/erros_campo.html" with campo=form.new_password2 %}
+        </div>
+        <button type="submit" class="btn btn-success">Salvar senha</button>
+    </form>
+{% else %}
+    <h1>Link inválido</h1>
+    <p>Este link já foi usado ou venceu. Peça um novo para redefinir sua senha.</p>
+    <p class="mt-3"><a href="{% url 'senha_esqueci' %}">Pedir novo link</a></p>
+{% endif %}
+{% endblock %}

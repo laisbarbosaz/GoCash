@@ -3,9 +3,54 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'admin/css/tema_admin.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/tema_admin.css' %}?v=6">
 {% endblock %}
 
-{% block branding %}
-<h1 id="site-name"><a href="{% url 'admin:index' %}">Go Cash - Painel do Administrador</a></h1>
+{% block header %}
+<header id="header" class="barra-gocash">
+    <div class="barra-conteudo">
+        <a class="barra-marca" href="{% url 'pagina_inicial' %}">Go Cash</a>
+
+        {% if has_permission %}
+        <ul class="barra-links">
+            <li><a href="{% url 'admin:index' %}" class="ativo" aria-current="page">Painel</a></li>
+            <li>
+                <details class="barra-menu">
+                    <summary>Módulos</summary>
+                    <ul>
+                        <li><a href="{% url 'listar_modulos' %}"><strong>Todos os módulos</strong></a></li>
+                        {% for modulo in modulos_menu %}
+                            <li><a href="{% url 'detalhe_modulo' modulo.slug %}">{{ modulo.nome_modulo }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </details>
+            </li>
+            <li><a href="{% url 'listar_atividades' %}">Atividades</a></li>
+            <li><a href="{% url 'quem_somos' %}">Quem somos</a></li>
+        </ul>
+
+        <details class="barra-menu barra-usuario">
+            <summary>{{ user.get_username }}</summary>
+            <ul>
+                <li><a href="{% url 'meu_perfil' %}">Meu perfil</a></li>
+                {% if user.has_usable_password %}
+                    <li><a href="{% url 'admin:password_change' %}">Alterar senha</a></li>
+                {% endif %}
+                <li class="separador"><a href="{% url 'logout' %}">Sair</a></li>
+            </ul>
+        </details>
+        {% endif %}
+    </div>
+</header>
+<script>
+    document.addEventListener('click', function (evento) {
+        document.querySelectorAll('.barra-menu[open]').forEach(function (menu) {
+            if (!menu.contains(evento.target)) {
+                menu.removeAttribute('open');
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .quem-somos {
+        margin: 40px 0 56px;
+        color: #1f2a1d;
+        line-height: 1.65;
+    }
+
+    .quem-somos h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0b2608;
+        margin-bottom: 16px;
+    }
+
+    .quem-somos h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #12460b;
+        margin: 32px 0 8px;
+    }
+
+    .quem-somos p,
+    .quem-somos li {
+        color: #1f2a1d;
+    }
+
+    .quem-somos ul {
+        padding-left: 1.25rem;
+    }
+
+    .quem-somos li {
+        margin-bottom: 6px;
+    }
+
+    .quem-somos a {
+        color: #12460b;
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+</style>
+
+<article class="quem-somos">
+    <h1>Quem somos</h1>
+    <p>O Go Cash é um projeto de educação financeira gratuito. A ideia é simples: levar informação de qualidade sobre dinheiro para quem nunca teve isso na escola ou em casa, principalmente jovens que estão começando a vida financeira, recebendo o primeiro salário, abrindo a primeira conta ou pensando no primeiro cartão.</p>
+    <h2>Como funciona</h2>
+    <ul>
+        <li>Os conteúdos são divididos em <a href="{% url 'listar_modulos' %}">módulos</a> curtos, com temas do dia a dia: orçamento, cartão de crédito, dívidas, golpes, juros e investimentos.</li>
+        <li>No fim de cada módulo tem uma atividade. Quanto mais você acerta, mais Cashs ganha.</li>
+        <li>Os Cashs são a pontuação do site. Eles não valem dinheiro, servem para você acompanhar o seu progresso e, se quiser, aparecer no ranking da página inicial.</li>
+        <li>Tudo é gratuito. Basta ter 16 anos ou mais para <a href="{% url 'cadastro' %}">criar uma conta</a>.</li>
+    </ul>
+
+    <h2>Seja um educador parceiro</h2>
+    <p>Professores, educadores financeiros e profissionais da área podem fazer parte do projeto publicando módulos e atividades e acompanhando o progresso dos alunos.</p>
+    <p>O cadastro de educador é feito por convite. Mande um e-mail para <a href="mailto:gocashsuporte@gmail.com">gocashsuporte@gmail.com</a> contando um pouco sobre você, e a equipe envia um código para você criar a sua conta.</p>
+
+    <h2>Fale com a gente</h2>
+    <p>Dúvidas, sugestões ou parcerias: <a href="mailto:gocashsuporte@gmail.com">gocashsuporte@gmail.com</a>.</p>
+</article>
+{% endblock %}

@@ -5,16 +5,14 @@ from django.utils.text import slugify
 class Modulo(models.Model):
     nome_modulo = models.CharField(max_length=100)
     descricao_modulo = models.TextField()
-    # Nome do módulo em formato de endereço (ex.: "Controles e Dívidas" -> "controles-e-dividas").
-    # É usado nas URLs no lugar do id do banco, para não expor a numeração interna.
     slug = models.SlugField(
         'Endereço na URL',
         max_length=110,
         unique=True,
         null=True,
         blank=True,
-        help_text='Gerado automaticamente a partir do nome. Ex.: /modulos/controles-e-dividas/',
     )
+    mostrar_cotacoes = models.BooleanField('Mostrar cotações do dia', default=False)
 
     class Meta:
         verbose_name = "Módulo"
@@ -24,8 +22,6 @@ class Modulo(models.Model):
         return self.nome_modulo
 
     def save(self, *args, **kwargs):
-        # Só gera na primeira vez: se o nome mudar depois, o endereço continua o mesmo
-        # e links antigos não quebram. O administrador pode editar o campo se quiser.
         if not self.slug:
             self.slug = self._gerar_slug_unico()
         super().save(*args, **kwargs)

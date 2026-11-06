@@ -1,4 +1,7 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
+
+from home.cotacoes import buscar_cotacoes
+
 from .models import Modulo
 
 
@@ -9,4 +12,7 @@ def listar_modulos(request):
 
 def detalhe_modulo(request, slug):
     modulo = get_object_or_404(Modulo, slug=slug)
-    return render(request, 'modulos/detalhe.html', {'modulo': modulo})
+    contexto = {'modulo': modulo}
+    if modulo.mostrar_cotacoes:
+        contexto['cotacoes'], contexto['erro_api'] = buscar_cotacoes()
+    return render(request, 'modulos/detalhe.html', contexto)

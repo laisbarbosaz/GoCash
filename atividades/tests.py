@@ -2,26 +2,25 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from contas.models import CodigoVerificacao
+from contas.models import CodigoVerificacao, PerfilUsuario
+from contas.papeis import definir_perfil
 from modulos.models import Modulo
 
 from .cashs import cashs_da_nota, saldo_de_cashs
-from .models import Alternativa, Atividade, AtividadeAberta, Pergunta, Tentativa
+from .models import Alternativa, Atividade, Pergunta, ProgressoAtividade, Tentativa
 
 
 def criar_atividade(qtd_perguntas=3):
-    """Cria um módulo com uma atividade e N perguntas; em cada uma a 1ª alternativa é a correta."""
     modulo = Modulo.objects.create(nome_modulo='Orçamento', descricao_modulo='Teste')
     atividade = Atividade.objects.create(modulo=modulo, titulo='Quiz de Orçamento')
     for i in range(1, qtd_perguntas + 1):
-        pergunta = Pergunta.objects.create(atividade=atividade, enunciado=f'Pergunta {i}?', ordem=i)
+        pergunta = Pergunta.objects.create(atividade=atividade, enunciado=f'Pergunta {i}?')
         Alternativa.objects.create(pergunta=pergunta, texto='Certa', correta=True)
         Alternativa.objects.create(pergunta=pergunta, texto='Errada', correta=False)
     return atividade
 
 
 def montar_respostas(atividade, acertos):
-    """Monta o POST acertando as primeiras `acertos` perguntas e errando o resto."""
     dados = {}
     for indice, pergunta in enumerate(atividade.perguntas.all()):
         correta = indice < acertos
@@ -157,45 +156,87 @@ class VoltarDepoisDoLoginTests(TestCase):
 
 
 class StatusDaAtividadeTests(TestCase):
-    """RF05: a etiqueta mostrada para o aluno deve refletir o que ele já fez."""
-
     def setUp(self):
         self.usuario = User.objects.create_user('aluno', 'aluno@teste.com', 'SenhaForte!123')
         self.client.force_login(self.usuario)
         self.atividade = criar_atividade()
+        self.url = reverse('responder_atividade', args=[self.atividade.modulo.slug])
 
     def _item_na_lista(self):
         resposta = self.client.get(reverse('listar_atividades'))
         return next(i for i in resposta.context['itens'] if i['atividade'].id == self.atividade.id)
 
     def test_nao_iniciado_quando_nunca_abriu(self):
-        item = self._item_na_lista()
-        self.assertFalse(item['em_andamento'])
-        self.assertEqual(item['tentativas_feitas'], 0)
+        self.assertEqual(self._item_na_lista()['status'], ProgressoAtividade.NAO_INICIADA)
+        self.assertFalse(ProgressoAtividade.objects.exists())
 
     def test_em_andamento_quando_abriu_e_nao_enviou(self):
-        self.client.get(reverse('responder_atividade', args=[self.atividade.modulo.slug]))
-        item = self._item_na_lista()
-        self.assertTrue(item['em_andamento'])
-        self.assertEqual(item['tentativas_feitas'], 0)
+        self.client.get(self.url)
+        self.assertEqual(self._item_na_lista()['status'], ProgressoAtividade.EM_ANDAMENTO)
 
     def test_concluida_quando_enviou_mesmo_com_tentativas_sobrando(self):
-        self.client.post(
-            reverse('responder_atividade', args=[self.atividade.modulo.slug]),
-            montar_respostas(self.atividade, acertos=2),
-        )
-        item = self._item_na_lista()
-        self.assertEqual(item['tentativas_feitas'], 1)
-        self.assertFalse(item['em_andamento'])
-        # Mesmo enviada, a marca de "aberta" dessa tentativa não deve sobrar no banco
-        self.assertFalse(
-            AtividadeAberta.objects.filter(usuario=self.usuario, atividade=self.atividade).exists()
-        )
+        self.client.post(self.url, montar_respostas(self.atividade, acertos=2))
+        self.assertEqual(self._item_na_lista()['status'], ProgressoAtividade.CONCLUIDA)
+        progresso = ProgressoAtividade.objects.get(usuario=self.usuario, atividade=self.atividade)
+        self.assertIsNotNone(progresso.concluida_em)
+
+    def test_reabrir_depois_de_concluida_continua_concluida(self):
+        self.client.post(self.url, montar_respostas(self.atividade, acertos=2))
+        self.client.get(self.url)
+        self.assertEqual(self._item_na_lista()['status'], ProgressoAtividade.CONCLUIDA)
+        self.assertEqual(ProgressoAtividade.objects.filter(usuario=self.usuario).count(), 1)
+
+
+class AcompanhamentoPorModuloTests(TestCase):
+    def setUp(self):
+        self.atividade = criar_atividade()
+        self.url_responder = reverse('responder_atividade', args=[self.atividade.modulo.slug])
+        self.url = reverse('admin:atividades_progressoatividade_acompanhamento')
+
+        self.concluiu = User.objects.create_user('ana', 'ana@teste.com', 'SenhaForte!123')
+        self.client.force_login(self.concluiu)
+        self.client.post(self.url_responder, montar_respostas(self.atividade, acertos=3))
+
+        self.abriu = User.objects.create_user('bruno', 'bruno@teste.com', 'SenhaForte!123')
+        self.client.force_login(self.abriu)
+        self.client.get(self.url_responder)
+
+        self.nada = User.objects.create_user('carla', 'carla@teste.com', 'SenhaForte!123')
+
+        self.educador = User.objects.create_user('edu', 'edu@teste.com', 'SenhaForte!123')
+        definir_perfil(self.educador, PerfilUsuario.EDUCADOR)
+        self.client.force_login(User.objects.get(pk=self.educador.pk))
+
+    def test_mostra_os_tres_status_do_modulo(self):
+        resposta = self.client.get(self.url, {'modulo': self.atividade.modulo.slug})
+        self.assertEqual(resposta.status_code, 200)
+        self.assertEqual(resposta.context['resumo'], {'em_andamento': 1, 'concluida': 1, 'nao_iniciada': 1})
+        status = {linha['aluno'].username: linha['status'] for linha in resposta.context['linhas']}
+        self.assertEqual(status, {'ana': 'concluida', 'bruno': 'em_andamento', 'carla': 'nao_iniciada'})
+        self.assertContains(resposta, 'Não iniciado')
+
+    def test_filtra_por_status(self):
+        resposta = self.client.get(self.url, {'modulo': self.atividade.modulo.slug, 'status': 'nao_iniciada'})
+        self.assertEqual([linha['aluno'].username for linha in resposta.context['linhas']], ['carla'])
+
+    def test_sem_modulo_escolhido_mostra_resumo_de_cada_modulo(self):
+        resposta = self.client.get(self.url)
+        self.assertEqual(resposta.context['linhas'], [])
+        self.assertContains(resposta, self.atividade.modulo.nome_modulo)
+        resumo = resposta.context['resumo_modulos'][0]['resumo']
+        self.assertEqual(resumo, {'em_andamento': 1, 'concluida': 1, 'nao_iniciada': 1})
+
+    def test_educador_ve_a_tabela_de_progresso(self):
+        resposta = self.client.get(reverse('admin:atividades_progressoatividade_changelist'))
+        self.assertEqual(resposta.status_code, 200)
+
+    def test_aluno_nao_acessa(self):
+        self.client.force_login(self.nada)
+        resposta = self.client.get(self.url)
+        self.assertEqual(resposta.status_code, 302)
 
 
 class CashsTests(TestCase):
-    """RF06: cada 10% de acerto = 10 Cashs, e só a melhor nota de cada atividade conta."""
-
     def setUp(self):
         self.usuario = User.objects.create_user('aluno', 'aluno@teste.com', 'SenhaForte!123')
         self.client.force_login(self.usuario)
@@ -213,18 +254,18 @@ class CashsTests(TestCase):
 
     def test_so_a_melhor_nota_conta(self):
         atividade = criar_atividade(qtd_perguntas=10)
-        self._responder(atividade, acertos=7)   # 70%
-        self._responder(atividade, acertos=5)   # 50%, nota pior: não muda o saldo
+        self._responder(atividade, acertos=7)
+        self._responder(atividade, acertos=5)
         self.assertEqual(saldo_de_cashs(self.usuario), 70)
 
-        self._responder(atividade, acertos=9)   # 90%, nota melhor: passa a valer esta
+        self._responder(atividade, acertos=9)
         self.assertEqual(saldo_de_cashs(self.usuario), 90)
 
     def test_soma_as_melhores_notas_de_atividades_diferentes(self):
         primeira = criar_atividade(qtd_perguntas=10)
         segunda = criar_atividade(qtd_perguntas=10)
-        self._responder(primeira, acertos=8)    # 80
-        self._responder(segunda, acertos=10)    # 100
+        self._responder(primeira, acertos=8)
+        self._responder(segunda, acertos=10)
         self.assertEqual(saldo_de_cashs(self.usuario), 180)
 
     def test_saldo_aparece_no_menu(self):
@@ -235,13 +276,11 @@ class CashsTests(TestCase):
 
     def test_visitante_nao_ve_cashs(self):
         self.client.logout()
-        resposta = self.client.get(reverse('listar_modulos'))  # página aberta, sem chamada à API de cotações
+        resposta = self.client.get(reverse('listar_modulos'))
         self.assertNotContains(resposta, 'Cashs')
 
 
 class EnderecosSemIdTests(TestCase):
-    """As URLs usam o nome do módulo e o número da tentativa do aluno, nunca o id do banco."""
-
     def setUp(self):
         self.usuario = User.objects.create_user('aluno', 'aluno@teste.com', 'SenhaForte!123')
         self.client.force_login(self.usuario)
@@ -266,7 +305,7 @@ class EnderecosSemIdTests(TestCase):
         self.assertEqual(resposta['Location'], f'/atividades/{atividade.modulo.slug}/resultado/1/')
 
     def test_pagina_do_modulo_abre_pelo_slug(self):
-        modulo = Modulo.objects.create(nome_modulo='Consumo Consciente', descricao_modulo='x')
+        Modulo.objects.create(nome_modulo='Consumo Consciente', descricao_modulo='x')
         resposta = self.client.get('/modulos/consumo-consciente/')
         self.assertEqual(resposta.status_code, 200)
         self.assertContains(resposta, 'Consumo Consciente')
@@ -275,3 +314,43 @@ class EnderecosSemIdTests(TestCase):
         modulo = Modulo.objects.create(nome_modulo='Investimentos', descricao_modulo='x')
         resposta = self.client.get(f'/modulos/modulos/{modulo.id}/')
         self.assertEqual(resposta.status_code, 404)
+
+
+class MenuDoPainelTests(TestCase):
+    def test_ordem_do_menu_e_usuarios_em_contas(self):
+        from django.contrib.auth.models import User as Usuario
+        administrador = Usuario.objects.create_superuser('adm', 'adm@teste.com', 'SenhaForte!123')
+        self.client.force_login(administrador)
+        html = self.client.get(reverse('admin:index')).content.decode()
+        menu = html[html.index('id="nav-sidebar"'):]
+        posicoes = [menu.index(texto) for texto in (
+            'Módulos de Aprendizagem', 'Atividades dos Módulos', 'Acompanhamento por módulo',
+            '>Usuários<', 'Convites de educador', 'Logs de auditoria', 'Grupos',
+        )]
+        self.assertEqual(posicoes, sorted(posicoes))
+        self.assertNotIn('Perfil usuarios', menu)
+
+
+class PerguntaNoPainelTests(TestCase):
+    def test_pergunta_nova_entra_no_fim_e_sem_campo_de_ordem(self):
+        from django.contrib.auth.models import User as Usuario
+        modulo = Modulo.objects.create(nome_modulo='Orçamento', descricao_modulo='x')
+        atividade = Atividade.objects.create(modulo=modulo, titulo='Quiz')
+        Pergunta.objects.create(atividade=atividade, enunciado='Primeira')
+        self.client.force_login(Usuario.objects.create_superuser('adm', 'adm@teste.com', 'SenhaForte!123'))
+
+        formulario = self.client.get(reverse('admin:atividades_pergunta_add'))
+        self.assertNotContains(formulario, 'name="ordem"')
+
+        dados = {
+            'atividade': atividade.pk,
+            'enunciado': 'Segunda',
+            'alternativas-TOTAL_FORMS': '2',
+            'alternativas-INITIAL_FORMS': '0',
+            'alternativas-0-texto': 'Certa',
+            'alternativas-0-correta': 'on',
+            'alternativas-1-texto': 'Errada',
+            '_save': 'Salvar',
+        }
+        self.client.post(reverse('admin:atividades_pergunta_add'), dados)
+        self.assertEqual(list(atividade.perguntas.values_list('enunciado', flat=True)), ['Primeira', 'Segunda'])

@@ -1,0 +1,71 @@
+<section class="painel-dash" aria-labelledby="minhas-atividades-titulo">
+    <div class="painel-dash-cabecalho">
+        <h2 id="minhas-atividades-titulo">Minhas atividades</h2>
+    </div>
+
+    <div class="painel-numeros">
+        <div class="painel-numero">
+            <span class="rotulo">Seus Cashs</span>
+            <span class="valor">{{ painel.cashs }}</span>
+            <span class="detalhe">10 Cashs a cada 10% de acerto</span>
+        </div>
+        <div class="painel-numero">
+            <span class="rotulo">Concluídas</span>
+            <span class="valor">{{ painel.concluidas }}<small> de {{ painel.total_atividades }}</small></span>
+        </div>
+        <div class="painel-numero">
+            <span class="rotulo">Em andamento</span>
+            <span class="valor">{{ painel.em_andamento }}</span>
+        </div>
+        <div class="painel-numero">
+            <span class="rotulo">Tentativas feitas</span>
+            <span class="valor">{{ painel.tentativas }}</span>
+        </div>
+    </div>
+
+    <div class="painel-graficos">
+        <div class="painel-grafico">
+            <h3>Por atividade</h3>
+            {% if painel.linhas %}
+                <table>
+                    <thead>
+                        <tr><th>Módulo</th><th>Situação</th><th>Tentativas</th><th>Cashs</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for linha in painel.linhas %}
+                            <tr>
+                                <td>{{ linha.modulo.nome_modulo }}</td>
+                                <td>{{ linha.situacao_exibida }}</td>
+                                <td>{{ linha.tentativas }} de {{ painel.max_tentativas }}</td>
+                                <td>{{ linha.cashs }}</td>
+                                <td>
+                                    {% if linha.pode_tentar %}
+                                        <a href="{% url 'responder_atividade' linha.modulo.slug %}">{% if linha.tentativas %}Refazer{% else %}Fazer{% endif %}</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="painel-vazio">Ainda não há atividades disponíveis.</p>
+            {% endif %}
+        </div>
+
+        <div class="painel-grafico">
+            <h3>Onde você mais errou</h3>
+            {% if painel.dificuldades %}
+                <ol class="lista-dificuldades">
+                    {% for item in painel.dificuldades %}
+                        <li>
+                            <span class="enunciado">{{ item.enunciado }}</span>
+                            <span class="detalhe">{{ item.modulo }} · errou {{ item.vezes }} vez{{ item.vezes|pluralize:"es" }} · <a href="{% url 'detalhe_modulo' item.slug %}">rever o módulo</a></span>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% else %}
+                <p class="painel-vazio">{% if painel.tentativas %}Você ainda não errou nenhuma pergunta. Mandou bem!{% else %}Assim que você fizer uma atividade, as perguntas em que errou aparecem aqui.{% endif %}</p>
+            {% endif %}
+        </div>
+    </div>
+</section>

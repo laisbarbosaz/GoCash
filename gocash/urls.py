@@ -5,7 +5,7 @@ from . import views
 
 admin.site.site_header = "Go Cash - Painel do Administrador"
 admin.site.site_title = "Go Cash Admin"
-admin.site.index_title = "Bem vindo ao painel administrativo do Go Cash"
+admin.site.index_title = "Painel de administração do Go Cash"
 
 urlpatterns = [
     path('admin/login/', RedirectView.as_view(pattern_name='login', permanent=False, query_string=True)),
@@ -14,5 +14,6 @@ urlpatterns = [
     path('conta/', include('contas.urls')),
     path('atividades/', include('atividades.urls')),
     path("logs/", views.logs_view, name="logs"),
+    path("logs/lista/", views.logs_detalhados, name="logs_detalhados"),
     path('', include('home.urls')),
 ]

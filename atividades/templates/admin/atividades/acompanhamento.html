@@ -1,0 +1,97 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .acomp-tabela { width: 100%; }
+    .acomp-voltar { margin: 0 0 16px; }
+    .acomp-filtros { margin: 0 0 16px; }
+    .acomp-filtros strong { color: var(--primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    {% if not modulos %}
+        <p>Nenhum módulo tem atividade cadastrada ainda.</p>
+
+    {% elif not modulo_escolhido %}
+        <div class="module">
+            <table class="acomp-tabela">
+                <caption>Escolha um módulo para ver os alunos</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Módulo</th>
+                        <th scope="col">Atividade</th>
+                        <th scope="col">Concluíram</th>
+                        <th scope="col">Em andamento</th>
+                        <th scope="col">Não iniciaram</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in resumo_modulos %}
+                        <tr>
+                            <th scope="row"><a href="?modulo={{ item.modulo.slug }}">{{ item.modulo.nome_modulo }}</a></th>
+                            <td>{{ item.modulo.atividade.titulo }}</td>
+                            <td>{{ item.resumo.concluida }}</td>
+                            <td>{{ item.resumo.em_andamento }}</td>
+                            <td>{{ item.resumo.nao_iniciada }}</td>
+                            <td><a href="?modulo={{ item.modulo.slug }}">Ver alunos</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <p class="acomp-voltar"><a href="{% url 'admin:atividades_progressoatividade_acompanhamento' %}">&larr; Todos os módulos</a></p>
+
+        <div class="acomp-filtros">
+            Mostrar:
+            {% for valor, rotulo, quantidade in filtros_status %}
+                {% if valor == status_escolhido %}
+                    <strong>{{ rotulo }} ({{ quantidade }})</strong>
+                {% else %}
+                    <a href="?modulo={{ modulo_escolhido.slug }}{% if valor %}&status={{ valor }}{% endif %}">{{ rotulo }} ({{ quantidade }})</a>
+                {% endif %}
+                {% if not forloop.last %}·{% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="module">
+            <table class="acomp-tabela">
+                <caption>{{ modulo_escolhido.atividade.titulo }}</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Aluno</th>
+                        <th scope="col">Usuário</th>
+                        <th scope="col">E-mail</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Começou em</th>
+                        <th scope="col">Concluiu em</th>
+                        <th scope="col">Tentativas</th>
+                        <th scope="col">Cashs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for linha in linhas %}
+                        <tr>
+                            <td>{{ linha.aluno.get_full_name|default:"-" }}</td>
+                            <td>{{ linha.aluno.username }}</td>
+                            <td>{{ linha.aluno.email }}</td>
+                            <td>{{ linha.status_exibido }}</td>
+                            <td>{{ linha.iniciada_em|date:"d/m/Y H:i"|default:"-" }}</td>
+                            <td>{{ linha.concluida_em|date:"d/m/Y H:i"|default:"-" }}</td>
+                            <td>{{ linha.tentativas }} de {{ max_tentativas }}</td>
+                            <td>{% if linha.cashs is not None %}{{ linha.cashs }}{% else %}-{% endif %}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="8">Nenhum aluno nessa situação.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

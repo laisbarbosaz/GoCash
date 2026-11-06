@@ -1,0 +1,7 @@
+{% extends "contas/senha/base.html" %}
+{% block caixa %}
+<h1>Confira seu e-mail</h1>
+<p>Se existir uma conta com esse e-mail, você vai receber em instantes um link para criar uma senha nova.</p>
+<p class="dica">Não chegou? Olhe a caixa de spam ou confira se digitou o e-mail certo.</p>
+<p class="mt-3"><a href="{% url 'login' %}">Voltar para o login</a></p>
+{% endblock %}

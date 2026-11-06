@@ -6,9 +6,8 @@
     .btn-success:hover, .btn-success:focus { background-color: #14540c; border-color: #14540c; }
     .btn-outline-success { color: #12460b; border-color: #12460b; }
     .btn-outline-success:hover, .btn-outline-success:focus { background-color: #12460b; border-color: #12460b; color: #fff; }
-    /* Mesmo verde já usado no selo de cotação em alta da página inicial (home.css).
-       Precisa do !important porque o Bootstrap aplica a cor do bg-success com !important. */
     .badge.bg-success { background-color: #12460b !important; }
+    .badge.tag-andamento { background-color: #ffffff; color: #8a5a1c; border: 1px solid #8a5a1c; }
 </style>
 
 <br>
@@ -35,10 +34,10 @@
                     {% endif %}
                 </p>
 
-                {% if item.tentativas_feitas %}
+                {% if item.status == 'concluida' %}
                     <span class="badge bg-success mb-2">Concluída</span>
-                {% elif item.em_andamento %}
-                    <span class="badge bg-warning text-dark mb-2">Em andamento</span>
+                {% elif item.status == 'em_andamento' %}
+                    <span class="badge tag-andamento mb-2">Em andamento</span>
                 {% else %}
                     <span class="badge bg-secondary mb-2">Não iniciado</span>
                 {% endif %}

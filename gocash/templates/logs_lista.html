@@ -1,0 +1,118 @@
+{% extends "admin/base_site.html" %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">Início</a> › <a href="{% url 'logs' %}">Logs de auditoria</a> › Lista completa</div>
+{% endblock %}
+
+{% block content %}
+<form method="get" class="filtros-logs">
+    <label>Usuário
+        <select name="usuario">
+            <option value="">Todos</option>
+            {% for pessoa in usuarios %}
+                <option value="{{ pessoa.username }}"{% if pessoa.username == usuario %} selected{% endif %}>{{ pessoa.username }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Ação
+        <select name="acao">
+            <option value="">Todas</option>
+            {% for valor, nome in acoes %}
+                <option value="{{ valor }}"{% if acao == valor|stringformat:"s" %} selected{% endif %}>{{ nome }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    <label>Período
+        <select name="periodo">
+            <option value="">Tudo</option>
+            <option value="7"{% if periodo == "7" %} selected{% endif %}>Últimos 7 dias</option>
+            <option value="30"{% if periodo == "30" %} selected{% endif %}>Últimos 30 dias</option>
+            <option value="90"{% if periodo == "90" %} selected{% endif %}>Últimos 90 dias</option>
+        </select>
+    </label>
+    <label>Buscar
+        <input type="search" name="busca" value="{{ busca }}" placeholder="Nome do item">
+    </label>
+    <button type="submit" class="button">Filtrar</button>
+    {% if filtros %}<a href="{% url 'logs_detalhados' %}">Limpar</a>{% endif %}
+</form>
+
+<div class="module">
+    <table class="tabela-logs">
+        <thead>
+            <tr>
+                <th scope="col">Data e hora</th>
+                <th scope="col">Usuário</th>
+                <th scope="col">Ação</th>
+                <th scope="col">Área</th>
+                <th scope="col">Item</th>
+                <th scope="col">O que mudou</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for linha in linhas %}
+                <tr>
+                    <td>{{ linha.quando|date:"d/m/Y H:i" }}</td>
+                    <td>{{ linha.usuario }}</td>
+                    <td>{{ linha.acao }}</td>
+                    <td>{{ linha.area }}</td>
+                    <td>{{ linha.objeto }}</td>
+                    <td>{{ linha.mudancas }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">Nenhum registro encontrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagina.paginator.num_pages > 1 %}
+    <p class="paginacao-logs">
+        {% if pagina.has_previous %}<a href="?{% if filtros %}{{ filtros }}&{% endif %}pagina={{ pagina.previous_page_number }}">‹ Anterior</a>{% endif %}
+        Página {{ pagina.number }} de {{ pagina.paginator.num_pages }} ({{ pagina.paginator.count }} registros)
+        {% if pagina.has_next %}<a href="?{% if filtros %}{{ filtros }}&{% endif %}pagina={{ pagina.next_page_number }}">Próxima ›</a>{% endif %}
+    </p>
+{% endif %}
+
+<style>
+    .filtros-logs {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 12px 16px;
+        margin-bottom: 16px;
+    }
+    .filtros-logs label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #12460b;
+    }
+    .filtros-logs a,
+    .paginacao-logs a {
+        color: #12460b;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+    .tabela-logs {
+        width: 100%;
+    }
+    .tabela-logs th {
+        background: #eafbe7;
+        color: #12460b;
+        font-weight: 600;
+        text-transform: none;
+    }
+    .tabela-logs td {
+        vertical-align: top;
+    }
+    .paginacao-logs {
+        margin-top: 12px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+</style>
+{% endblock %}
