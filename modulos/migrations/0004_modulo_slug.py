@@ -3,7 +3,6 @@ from django.utils.text import slugify
 
 
 def preencher_slugs(apps, schema_editor):
-    """Gera o endereço (slug) dos módulos que já existiam antes deste campo."""
     Modulo = apps.get_model('modulos', 'Modulo')
     usados = set(Modulo.objects.exclude(slug__isnull=True).values_list('slug', flat=True))
     for modulo in Modulo.objects.filter(slug__isnull=True).order_by('id'):

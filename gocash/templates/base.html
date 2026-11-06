@@ -15,6 +15,16 @@
             color: #ffffff !important;
         }
 
+        .navbar-gocash {
+            --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            --bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.5);
+            --bs-navbar-toggler-focus-width: 0.15rem;
+        }
+
+        .navbar-gocash .navbar-toggler:focus {
+            box-shadow: 0 0 0 0.15rem rgba(255, 255, 255, 0.4);
+        }
+
         .navbar-gocash .dropdown-menu a {
             color: #12460b !important; 
         }
@@ -49,6 +59,17 @@
             color: #ffffff;
             text-align: center;
             padding: 15px 15px;
+        }
+
+        footer.footer p {
+            margin: 0;
+            color: #ffffff !important;
+        }
+
+        footer.footer p {
+            margin: 0;
+            padding: 0;
+            color: #ffffff !important;
         }
 
         a,li {
@@ -135,6 +156,11 @@
 
             <div class="collapse navbar-collapse" id="menuPrincipal">
                 <ul class="navbar-nav me-auto">
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">Painel</a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             Módulos
@@ -153,21 +179,27 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'listar_atividades' %}">Atividades</a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'quem_somos' %}">Quem somos</a>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
+                    {% if not user.is_staff %}
                     <li class="nav-item">
                         <span class="nav-link" title="Cada atividade conta só pela sua melhor nota">
                             <i class="bi bi-coin"></i> {{ cashs_usuario }} Cashs
                         </span>
                     </li>
+                    {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             {{ user.username }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Meu perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'meu_perfil' %}">Meu perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'logout' %}">Sair</a></li>
                         </ul>

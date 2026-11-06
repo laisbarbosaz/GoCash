@@ -1,76 +1,52 @@
 # Go Cash - Plataforma de Educação Financeira
-## Sobre o projeto
-O **Go Cash** é uma plataforma web de educação financeira aplicada, voltada principalmente a estudantes do Ensino Médio como ferramenta complementar de aprendizagem. A proposta é ensinar conceitos de orçamento pessoal, planejamento financeiro e consumo consciente por meio de conteúdos educacionais, atividades interativas e simuladores financeiros.
 
-## Tecnologias Utilizadas
-* **Back-end:** Python + Django (v6.1.1)
-* **Banco de dados:** PostgreSQL
-* **Front-end:** HTML5, CSS3, JavaScript, Bootstrap *(Interface principal em desenvolvimento)*
-* **API externa:** AwesomeAPI (Cotações em tempo real para os módulos e simuladores)
-* **Deploy:** Render (Gunicorn) `-- a implementar`
-* **Versionamento:** Git e GitHub
+Plataforma web gratuita de educação financeira para jovens a partir de 16 anos. O aluno estuda módulos curtos, faz atividades, ganha Cashs (pontuação) e acompanha o próprio progresso. Educadores parceiros publicam conteúdos e acompanham os alunos.
 
----
+## Tecnologias
+- **Back-end:** Python + Django 6.1.1
+- **Banco de dados:** PostgreSQL
+- **Front-end:** HTML, CSS, JavaScript, Bootstrap 5 e Chart.js (gráficos)
+- **API externa:** AwesomeAPI (cotações do dólar, euro e bitcoin)
+- **E-mails:** Brevo (SMTP)
+- **Deploy:** Render (a implementar)
 
-## Progresso do Desenvolvimento (Linha do Tempo)
+## O que foi implementado
 
-### Funcionalidade 1 — Módulos de Aprendizagem em Educação Financeira *(Atualizado em 14.09)*
-Primeira entrega prevista na ficha do PFC: o usuário consegue acessar módulos de conteúdo educacional (ex: orçamento pessoal, cartão de crédito, consumo consciente).
+### Requisitos funcionais (front-end e back-end integrados) implementados até agora
+- **Contas e perfis:** cadastro de aluno, login, perfis Aluno, Educador, Administrador e Administrador principal, com permissões diferentes no painel.
+- **Educador por convite:** o administrador gera um código (uso único, válido por 2 dias, preso ao e-mail) que é enviado por e-mail.
+- **Segurança:** verificação em duas etapas por código no e-mail (pode ser ligada ou desligada no painel), recuperação de senha por link e logs de auditoria.
+- **Módulos de aprendizagem:** módulos com conteúdos e referências; URLs pelo nome (`/modulos/economia-global/`).
+- **Atividades:** um quiz por módulo, 3 tentativas, resultado com as respostas certas e erradas.
+- **Cashs e ranking:** 10 Cashs a cada 10% de acerto, contando só a melhor tentativa; ranking dos 10 alunos com mais Cashs na página inicial, só para quem autorizar no perfil.
+- **Meu perfil:** ver os próprios dados, alterar nome e e-mail, participar do ranking e excluir a conta.
+- **Cotações:** consumo da AwesomeAPI no módulo Economia Global, com cache de 2 minutos e aviso caso a API esteja fora do ar.
+- **Painel administrativo:** menu lateral próprio, acompanhamento dos alunos por módulo, ativar e desativar contas, alterar perfis.
+- **LGPD:** Termos de Uso e Política de Privacidade, idade mínima de 16 anos e aceite registrado no cadastro.
 
-* **O que e como foi implementado:**
-  * Configuração do ambiente virtual (`venv`) e instalação do Django pelo terminal.
-  * Criação do projeto base (`gocash`) e do app `modulos`.
-  * Integração com o banco de dados PostgreSQL via `psycopg2-binary`.
-  * Modelagem dos dados: `Modulo` (nome, descrição, ordem de exibir) e `ConteudoModulo` (título, explicação, ordem de exibir), relacionados por `ForeignKey`.
-  * Registro das models no painel administrativo do Django, permitindo que o administrador cadastre os módulos e conteúdos dinamicamente.
-  * Desenvolvimento de Views, URLs e templates (com Bootstrap) para a interface pública: listagem de módulos (`/modulos/`) e detalhe de cada módulo com seus conteúdos (`/modulos/<id>/`).
+### Validações e tratamento de entradas inválidas
+- Cadastro: e-mail e confirmação iguais, e-mail único (também no banco, sem diferenciar maiúsculas), senha forte, aceite dos termos obrigatório, código de convite válido, não usado, não vencido e do mesmo e-mail.
+- Login: senha errada, conta desativada e código de verificação expirado ou incorreto.
+- Painel: pergunta com pelo menos 2 alternativas e exatamente 1 correta; convite não enviado para e-mail que já tem conta.
+- Perfil: troca de e-mail e exclusão de conta exigem a senha atual.
+- Mensagens de erro em português, ao lado de cada campo.
 
-* **Fluxo atual:** O administrador (superusuário Django) cadastra módulos e conteúdos em `/admin` e qualquer visitante consegue visualizar essa lista navegando por `/modulos/`.
+### Dashboard
+- **Administrador:** Big Numbers (alunos ativos, educadores ativos, convites pendentes, contas desativadas, atividades disponíveis, taxa de conclusão e Cashs acumulados) e gráficos de novos cadastros por mês e situação dos alunos por módulo.
+- **Educador:** os mesmos indicadores de engajamento e o gráfico de Cashs acumulados por módulo.
+- **Aluno (página inicial):** ranking, Minhas atividades (Cashs, concluídas, em andamento, tentativas), situação de cada atividade e as perguntas em que mais errou.
+- Os números são calculados no servidor a partir do banco; os gráficos usam Chart.js e têm a opção "Ver em tabela".
 
-### Funcionalidade 2 — Integração de Cotações em Tempo Real + Login/Cadastro com LGPD aplicada (Atualizado em 28.09)*
-Segunda etapa de desenvolvimento: Integração com serviço externo de câmbio para alimentar a página inicial da aplicação com dados de mercado reais, servindo de base para os futuros simuladores financeiros.
+### Persistência e regras de negócio
+- Todos os dados ficam no PostgreSQL: usuários, perfis, convites, módulos, atividades, tentativas, respostas e progresso.
+- Regras aplicadas: limite de 3 tentativas, Cashs pela melhor tentativa, status da atividade (não iniciada, em andamento, concluída), um único Administrador principal, educador só por convite e ranking só com consentimento.
+- 128 testes automatizados (`python manage.py test`).
 
-* **O que e como foi implementado:**
-  * Instalação e mapeamento da biblioteca externa `requests` no gerenciador de dependências.
-  * Criação do app `home` para controle e centralização da página inicial do ecossistema.
-  * Implementação do consumo da API pública da **AwesomeAPI** por meio do método `GET`.
-  * Captura e tratamento em tempo real das cotações do **Dólar Americano (USD)**, **Euro (EUR)** e **Bitcoin (BTC)** em relação ao **Real Brasileiro (BRL)**.
-  * Implementação de **Timeout de 5 segundos** na requisição para garantir a resiliência e evitar o travamento do servidor caso a API externa sofra instabilidade.
-  * Criação de fluxo de **Fallback de Segurança (`erro_api = True`)**: caso ocorra uma falha de conexão (`requests.RequestException`), o sistema captura a exceção e impede a quebra da aplicação (evitando Erros 500), permitindo que o front-end exiba um aviso amigável ao estudante.
-
-
-## Histórico de Resolução de Problemas (Troubleshooting)
-Durante o desenvolvimento, os seguintes comportamentos foram identificados, documentados e corrigidos:
-* **Banco de Dados:** Permissão de *schema public* negada no ambiente local do PostgreSQL. Resolvido aplicando comandos manuais de `GRANT` para o usuário do banco de dados.
-* **Ambiente de Execução:** Cache antigo em sessões ativas do Shell do Django mantendo configurações desatualizadas de conexão. Resolvido reiniciando as instâncias e limpando os processos do terminal.
-* **Sintaxe de Código:** Erros de compilação na View causados pela declaração de dados da API como texto literal puro. Resolvido com a devida tokenização e inserção de aspas adequadas nas chaves do dicionário e parâmetros de strings.
-
-
-## Como Rodar o Projeto Localmente
-
-1. **Ativar o ambiente virtual:**
-   ```bash
-   venv\Scripts\Activate.ps1
-   ```
-
-2. **Instalar as dependências necessárias:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configurar o Ambiente:**
-   Crie e configure o arquivo `.env` na raiz do projeto com as credenciais do seu PostgreSQL local.
-
-4. **Rodar as migrações do banco de dados:**
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Criar um superusuário para acessar a página do admin:**
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-6. **Iniciar o servidor de desenvolvimento:**
-   ```bash
-   python manage.py runserver
+## Como rodar localmente
+1. Ative o ambiente virtual: `venv\Scripts\Activate.ps1`
+2. Instale as dependências: `pip install -r requirements.txt`
+3. Crie o `.env` na raiz com as credenciais do PostgreSQL e do e-mail.
+4. Rode as migrações: `python manage.py migrate`
+5. Crie um superusuário: `python manage.py createsuperuser`
+6. Defina o Administrador principal: `python manage.py definir_administrador_principal <usuario>`
+7. Inicie o servidor: `python manage.py runserver`

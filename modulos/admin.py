@@ -4,8 +4,7 @@ from .models import Modulo, ConteudoModulo
 
 @admin.register(Modulo)
 class ModuloAdmin(admin.ModelAdmin):
-    list_display = ('nome_modulo', 'slug')
-    # Ao digitar o nome de um módulo novo, o endereço é preenchido sozinho
+    list_display = ('nome_modulo', 'slug', 'mostrar_cotacoes')
     prepopulated_fields = {'slug': ('nome_modulo',)}
 
 

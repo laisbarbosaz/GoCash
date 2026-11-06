@@ -4,11 +4,70 @@
 <hr>
 <h1 style="color: #000000; font-size: 20px;">{{ modulo.nome_modulo }}</h1>
 <p class="card-text" style="color: #000000; font-size: 18px;">{{ modulo.descricao_modulo }}</p>
+
+{% if modulo.mostrar_cotacoes %}
+<style>
+    .cotacoes-modulo {
+        border: 1px solid #cfdccb;
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        background: #f9fdf8;
+        color: #0b2608;
+    }
+    .cotacoes-modulo h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .cotacoes-modulo .explicacao { color: #4a4a4a; font-size: 0.95rem; }
+    .cotacoes-modulo table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+    .cotacoes-modulo th, .cotacoes-modulo td { padding: 8px 10px; border-bottom: 1px solid #cfdccb; text-align: right; white-space: nowrap; }
+    .cotacoes-modulo th:first-child, .cotacoes-modulo td:first-child { text-align: left; white-space: normal; }
+    .cotacoes-modulo th { font-size: 0.85rem; color: #12460b; }
+    .cotacoes-modulo .sobe { color: #1b6e1f; font-weight: 600; }
+    .cotacoes-modulo .cai { color: #a42020; font-weight: 600; }
+    .cotacoes-modulo .fonte { font-size: 0.85rem; color: #4a4a4a; margin: 0; }
+    .cotacoes-modulo .tabela-rolavel { overflow-x: auto; }
+</style>
+
+<section class="cotacoes-modulo" aria-labelledby="titulo-cotacoes">
+    <h2 id="titulo-cotacoes">Cotações agora</h2>
+
+    {% if erro_api %}
+        <p>Não foi possível carregar as cotações agora. Tente de novo em alguns minutos.</p>
+    {% else %}
+        <div class="tabela-rolavel">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="col">Moeda</th>
+                        <th scope="col">Compra</th>
+                        <th scope="col">Venda</th>
+                        <th scope="col">Mínima do dia</th>
+                        <th scope="col">Máxima do dia</th>
+                        <th scope="col">Variação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotacao in cotacoes %}
+                        <tr>
+                            <td>{{ cotacao.nome }} ({{ cotacao.codigo }})</td>
+                            <td>R$ {{ cotacao.compra|floatformat:2 }}</td>
+                            <td>R$ {{ cotacao.venda|floatformat:2 }}</td>
+                            <td>R$ {{ cotacao.minima|floatformat:2 }}</td>
+                            <td>R$ {{ cotacao.maxima|floatformat:2 }}</td>
+                            <td class="{% if cotacao.variacao >= 0 %}sobe{% else %}cai{% endif %}">{% if cotacao.variacao >= 0 %}+{% endif %}{{ cotacao.variacao|floatformat:2 }}%</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="fonte">Fonte: AwesomeAPI (economia.awesomeapi.com.br){% if cotacoes.0.atualizada %}, atualizado em {{ cotacoes.0.atualizada }}{% endif %}.</p>
+    {% endif %}
+</section>
+{% endif %}
 {% for conteudo in modulo.conteudos.all %}
     <div class="card">
         <div class="card-body">
             <h4 class="card-title" style="color: #12460b; font-size: large;">{{ conteudo.titulo_conteudo }}</h4>
-            {{ conteudo.explicacao_conteudo|linebreaks }}
+            {{ conteudo.explicacao_conteudo|urlize|linebreaks }}
         </div>
     </div>
 {% endfor %}

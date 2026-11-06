@@ -5,13 +5,10 @@ from django.contrib.auth.views import redirect_to_login
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Atividade, AtividadeAberta, Resposta, Tentativa
+from .models import Atividade, ProgressoAtividade, Resposta, Tentativa
 
 
 def login_obrigatorio(view):
-    """Só deixa entrar quem está logado. Quem não está vai para o login
-    com um aviso e, depois do 2FA, volta para a página que tentou abrir."""
-
     @wraps(view)
     def _view(request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -34,9 +31,8 @@ def listar_atividades(request):
     for tentativa in Tentativa.objects.filter(usuario=request.user):
         tentativas_por_atividade.setdefault(tentativa.atividade_id, []).append(tentativa)
 
-    # Atividades que o usuário abriu mas ainda não enviou nenhuma tentativa
-    abertas_ids = set(
-        AtividadeAberta.objects.filter(usuario=request.user).values_list('atividade_id', flat=True)
+    status_por_atividade = dict(
+        ProgressoAtividade.objects.filter(usuario=request.user).values_list('atividade_id', 'status')
     )
 
     itens = []
@@ -53,7 +49,7 @@ def listar_atividades(request):
             'restantes': max(0, Atividade.MAX_TENTATIVAS - len(feitas)),
             'melhor_aproveitamento': max((t.aproveitamento for t in feitas), default=None),
             'ultima_tentativa': feitas[0] if feitas else None,
-            'em_andamento': atividade.id in abertas_ids,
+            'status': status_por_atividade.get(atividade.id, ProgressoAtividade.NAO_INICIADA),
         })
 
     return render(request, 'atividades/lista.html', {
@@ -122,16 +118,11 @@ def responder_atividade(request, slug):
                 messages.warning(request, "Essa tentativa já tinha sido registrada.")
                 return redirect('listar_atividades')
 
-            # A tentativa foi enviada: não está mais "em andamento"
-            AtividadeAberta.objects.filter(
-                usuario=request.user, atividade=atividade, numero=tentativa.numero,
-            ).delete()
+            progresso, _ = ProgressoAtividade.objects.get_or_create(usuario=request.user, atividade=atividade)
+            progresso.marcar_concluida()
             return redirect('resultado_atividade', slug=slug, numero=tentativa.numero)
     else:
-        # Abriu a tela e ainda não enviou: marca esta tentativa como "em andamento"
-        AtividadeAberta.objects.get_or_create(
-            usuario=request.user, atividade=atividade, numero=tentativas_feitas + 1,
-        )
+        ProgressoAtividade.objects.get_or_create(usuario=request.user, atividade=atividade)
 
     return render(request, 'atividades/responder.html', {
         'atividade': atividade,
@@ -143,8 +134,6 @@ def responder_atividade(request, slug):
 
 @login_obrigatorio
 def resultado_atividade(request, slug, numero):
-    # Procura a tentativa nº X DESTE usuário nesta atividade. O número vai de 1 a 3 e é
-    # de cada aluno: a "tentativa 1" de outra pessoa nunca é encontrada por aqui.
     tentativa = get_object_or_404(
         Tentativa.objects.select_related('atividade__modulo'),
         atividade__modulo__slug=slug,

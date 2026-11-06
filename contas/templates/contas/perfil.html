@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    .pagina-perfil {
+        max-width: 760px;
+        border: 1px solid #12460b;
+        border-radius: 15px;
+        padding: 28px 32px;
+        margin: 40px auto;
+        background-color: #f9fdf8;
+        color: #0b2608;
+    }
+
+    .pagina-perfil h1 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .pagina-perfil h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .pagina-perfil section {
+        border-top: 1px solid #cfdccb;
+        padding-top: 20px;
+        margin-top: 24px;
+    }
+
+    .dados-perfil {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 10px 16px;
+        margin: 0;
+    }
+
+    .dados-perfil dt {
+        font-weight: 600;
+    }
+
+    .dados-perfil dd {
+        margin: 0;
+    }
+
+    .pagina-perfil label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .pagina-perfil input.form-control {
+        max-width: 360px;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .campos-nome {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 260px));
+        gap: 0 16px;
+    }
+
+    .pagina-perfil .descricao {
+        font-size: 0.92rem;
+        color: #4a4a4a;
+        margin-bottom: 14px;
+    }
+
+    .pagina-perfil .form-check {
+        margin: 4px 0 16px;
+    }
+
+    .pagina-perfil .form-check-input {
+        border: 1px solid #000;
+    }
+
+    .pagina-perfil .form-check-label {
+        font-weight: 400;
+    }
+
+    .pagina-perfil .btn-success {
+        background-color: #12460b;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-weight: 600;
+        border: none;
+    }
+
+    .pagina-perfil .btn-success:hover {
+        background-color: #14540c;
+    }
+
+    .pagina-perfil .btn-excluir {
+        background-color: #a42020;
+        color: #fff;
+        border-radius: 8px;
+        padding: 8px 18px;
+        font-weight: 600;
+        border: none;
+    }
+
+    .pagina-perfil .btn-excluir:hover {
+        background-color: #8a1a1a;
+    }
+
+    .pagina-perfil .excluir h2 {
+        color: #a42020;
+    }
+
+    .pagina-perfil a {
+        color: #0b2608;
+        font-weight: 600;
+    }
+
+    @media (max-width: 576px) {
+        .pagina-perfil {
+            padding: 20px 16px;
+        }
+
+        .dados-perfil {
+            grid-template-columns: 1fr;
+            gap: 2px;
+        }
+
+        .dados-perfil dd {
+            margin-bottom: 10px;
+        }
+
+        .campos-nome {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="pagina-perfil">
+    <h1>Meu perfil</h1>
+
+    <dl class="dados-perfil">
+        <dt>Nome</dt>
+        <dd>{{ user.get_full_name|default:"-" }}</dd>
+
+        <dt>Usuário</dt>
+        <dd>{{ user.username }}</dd>
+
+        <dt>E-mail</dt>
+        <dd>{{ user.email|default:"-" }}</dd>
+
+        <dt>Perfil</dt>
+        <dd>{{ nome_perfil }}</dd>
+
+        {% if not user.is_staff %}
+            <dt>Cashs</dt>
+            <dd>{{ cashs_usuario }}</dd>
+        {% endif %}
+
+        <dt>Conta criada em</dt>
+        <dd>{{ user.date_joined|date:"d/m/Y" }}</dd>
+
+        <dt>Último acesso</dt>
+        <dd>{{ user.last_login|date:"d/m/Y \à\s H:i"|default:"-" }}</dd>
+
+        <dt>Termos aceitos em</dt>
+        <dd>{{ perfil.data_aceite_termos|date:"d/m/Y \à\s H:i"|default:"-" }}</dd>
+    </dl>
+
+    {% if not user.is_staff %}
+    <section>
+        <h2>Ranking</h2>
+        <p class="descricao">O ranking fica na página inicial e qualquer visitante pode ver. Aparecem o seu primeiro nome, a inicial do sobrenome, o seu usuário e os seus Cashs.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="ranking">
+            <div class="form-check">
+                <input type="checkbox" name="aparecer_no_ranking" id="id_aparecer_no_ranking" class="form-check-input"{% if perfil.aparecer_no_ranking %} checked{% endif %}>
+                <label class="form-check-label" for="id_aparecer_no_ranking">Quero aparecer no ranking da página inicial</label>
+            </div>
+            <button type="submit" class="btn btn-success">Salvar</button>
+        </form>
+    </section>
+    {% endif %}
+
+    <section>
+        <h2>Alterar nome</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="nome">
+            <div class="campos-nome">
+                <div class="mb-3">
+                    <label for="id_first_name">Nome</label>
+                    <input type="text" name="first_name" id="id_first_name" maxlength="150" value="{{ form_nome.first_name.value|default_if_none:'' }}"
+                           class="form-control{% if form_nome.first_name.errors %} is-invalid{% endif %}" required>
+                    {% include "partials/erros_campo.html" with campo=form_nome.first_name %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_last_name">Sobrenome</label>
+                    <input type="text" name="last_name" id="id_last_name" maxlength="150" value="{{ form_nome.last_name.value|default_if_none:'' }}"
+                           class="form-control{% if form_nome.last_name.errors %} is-invalid{% endif %}" required>
+                    {% include "partials/erros_campo.html" with campo=form_nome.last_name %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Salvar nome</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Senha</h2>
+        <a href="{% url 'senha_esqueci' %}">Trocar minha senha</a>
+    </section>
+
+    <section>
+        <h2>Alterar e-mail</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="acao" value="email">
+            <div class="mb-3">
+                <label for="id_novo_email">Novo e-mail</label>
+                <input type="email" name="novo_email" id="id_novo_email" maxlength="254" value="{{ form_email.novo_email.value|default_if_none:'' }}"
+                       class="form-control{% if form_email.novo_email.errors %} is-invalid{% endif %}" required>
+                {% include "partials/erros_campo.html" with campo=form_email.novo_email %}
+            </div>
+            <div class="mb-3">
+                <label for="id_senha_email">Senha atual</label>
+                <input type="password" name="senha" id="id_senha_email" autocomplete="current-password"
+                       class="form-control{% if form_email.senha.errors %} is-invalid{% endif %}" required>
+                {% include "partials/erros_campo.html" with campo=form_email.senha %}
+            </div>
+            <button type="submit" class="btn btn-success">Salvar e-mail</button>
+        </form>
+    </section>
+
+    <section class="excluir">
+        <h2>Excluir conta</h2>
+        {% if principal %}
+            <p class="descricao">A conta do Administrador principal não pode ser excluída. Para isso, passe o papel de principal para outra pessoa antes.</p>
+        {% else %}
+            <p class="descricao">A conta, os Cashs e o progresso nas atividades são apagados na hora. Não dá para desfazer.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="excluir">
+                <div class="mb-3">
+                    <label for="id_senha_excluir">Senha atual</label>
+                    <input type="password" name="senha" id="id_senha_excluir" autocomplete="current-password"
+                           class="form-control{% if form_excluir.senha.errors %} is-invalid{% endif %}" required>
+                    {% include "partials/erros_campo.html" with campo=form_excluir.senha %}
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="confirmar" id="id_confirmar_exclusao" class="form-check-input" required>
+                    <label class="form-check-label" for="id_confirmar_exclusao">{{ form_excluir.confirmar.label }}</label>
+                    {% include "partials/erros_campo.html" with campo=form_excluir.confirmar %}
+                </div>
+                <button type="submit" class="btn btn-excluir">Excluir minha conta</button>
+            </form>
+        {% endif %}
+    </section>
+</div>
+
+{% endblock %}
