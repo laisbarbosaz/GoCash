@@ -3,39 +3,11 @@
 
 <section class="painel-dash" aria-label="Visão geral">
 
-    {% if administrador %}
-        <div class="painel-numeros">
-            <div class="painel-numero">
-                <span class="rotulo">Alunos ativos</span>
-                <span class="valor">{{ painel.alunos }}</span>
-            </div>
-            <div class="painel-numero">
-                <span class="rotulo">Educadores ativos</span>
-                <span class="valor">{{ painel.educadores }}</span>
-            </div>
-            <div class="painel-numero">
-                <span class="rotulo">Convites de educador</span>
-                <span class="valor">{{ painel.convites_pendentes }}</span>
-                {% if painel.convites_pendentes %}
-                    <a class="detalhe" href="{% url 'admin:contas_conviteeducador_changelist' %}">aguardando cadastro</a>
-                {% else %}
-                    <a class="detalhe" href="{% url 'admin:contas_conviteeducador_add' %}">enviar um convite</a>
-                {% endif %}
-            </div>
-            <div class="painel-numero">
-                <span class="rotulo">Contas desativadas</span>
-                <span class="valor">{{ painel.contas_inativas }}</span>
-            </div>
-        </div>
-    {% endif %}
-
     <div class="painel-numeros">
-        {% if not administrador %}
-            <div class="painel-numero">
-                <span class="rotulo">Alunos ativos</span>
-                <span class="valor">{{ painel.alunos }}</span>
-            </div>
-        {% endif %}
+        <div class="painel-numero">
+            <span class="rotulo">Alunos ativos</span>
+            <span class="valor">{{ painel.alunos }}</span>
+        </div>
         <div class="painel-numero">
             <span class="rotulo">Atividades disponíveis</span>
             <span class="valor">{{ painel.atividades }}</span>
@@ -49,28 +21,30 @@
             <span class="rotulo">Cashs acumulados</span>
             <span class="valor">{{ painel.cashs_total }}</span>
         </div>
+        <div class="painel-numero">
+            <span class="rotulo">Contas desativadas</span>
+            <span class="valor">{{ painel.contas_inativas }}</span>
+        </div>
     </div>
 
     <div class="painel-graficos">
-        {% if administrador %}
-            <div class="painel-grafico">
-                <h3>Novos cadastros nos últimos 6 meses</h3>
-                <div class="area" style="height: 260px;">
-                    <canvas id="grafico-cadastros" role="img" aria-label="Gráfico de colunas com os novos cadastros de cada mês"></canvas>
-                </div>
-                <details>
-                    <summary>Ver em tabela</summary>
-                    <table>
-                        <thead><tr><th>Mês</th><th>Cadastros</th></tr></thead>
-                        <tbody>
-                            {% for linha in painel.linhas_cadastros %}
-                                <tr><td>{{ linha.mes }}</td><td>{{ linha.quantidade }}</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </details>
+        <div class="painel-grafico">
+            <h3>Novos cadastros nos últimos 6 meses</h3>
+            <div class="area" style="height: 260px;">
+                <canvas id="grafico-cadastros" role="img" aria-label="Gráfico de colunas com os novos cadastros de cada mês"></canvas>
             </div>
-        {% endif %}
+            <details>
+                <summary>Ver em tabela</summary>
+                <table>
+                    <thead><tr><th>Mês</th><th>Cadastros</th></tr></thead>
+                    <tbody>
+                        {% for linha in painel.linhas_cadastros %}
+                            <tr><td>{{ linha.mes }}</td><td>{{ linha.quantidade }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </details>
+        </div>
 
         <div class="painel-grafico">
             <h3>Situação dos alunos por módulo</h3>
@@ -94,34 +68,32 @@
             {% endif %}
         </div>
 
-        {% if not administrador %}
-            <div class="painel-grafico">
-                <h3>Cashs acumulados por módulo</h3>
-                {% if painel.modulos %}
-                    <div class="area" style="height: {{ painel.altura_grafico }}px;">
-                        <canvas id="grafico-cashs" role="img" aria-label="Gráfico de barras com os Cashs acumulados em cada módulo"></canvas>
-                    </div>
-                    <details>
-                        <summary>Ver em tabela</summary>
-                        <table>
-                            <thead><tr><th>Módulo</th><th>Cashs</th></tr></thead>
-                            <tbody>
-                                {% for modulo in painel.modulos %}
-                                    <tr><td>{{ modulo.modulo }}</td><td>{{ modulo.cashs }}</td></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </details>
-                {% else %}
-                    <p class="painel-vazio">Ainda não há atividades disponíveis.</p>
-                {% endif %}
-            </div>
-        {% endif %}
+        <div class="painel-grafico">
+            <h3>Cashs acumulados por módulo</h3>
+            {% if painel.modulos %}
+                <div class="area" style="height: {{ painel.altura_grafico }}px;">
+                    <canvas id="grafico-cashs" role="img" aria-label="Gráfico de barras com os Cashs acumulados em cada módulo"></canvas>
+                </div>
+                <details>
+                    <summary>Ver em tabela</summary>
+                    <table>
+                        <thead><tr><th>Módulo</th><th>Cashs</th></tr></thead>
+                        <tbody>
+                            {% for modulo in painel.modulos %}
+                                <tr><td>{{ modulo.modulo }}</td><td>{{ modulo.cashs }}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </details>
+            {% else %}
+                <p class="painel-vazio">Ainda não há atividades disponíveis.</p>
+            {% endif %}
+        </div>
     </div>
 </section>
 
 {{ painel.grafico_conclusao|json_script:"dados-conclusao" }}
 {{ painel.grafico_cashs|json_script:"dados-cashs" }}
-{% if administrador %}{{ painel.grafico_cadastros|json_script:"dados-cadastros" }}{% endif %}
+{{ painel.grafico_cadastros|json_script:"dados-cadastros" }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="{% static 'home/js/dashboard.js' %}?v=4"></script>

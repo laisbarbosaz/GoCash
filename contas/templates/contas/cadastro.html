@@ -53,43 +53,6 @@
         margin: 4px 0 0;
     }
 
-    .tipo-conta {
-        margin-bottom: 20px;
-    }
-
-    .tipo-conta legend {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #0b2608;
-        margin-bottom: 8px;
-    }
-
-    .form-cadastro .tipo-conta label {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-weight: 400;
-        margin-right: 24px;
-        cursor: pointer;
-    }
-
-    .tipo-conta input {
-        accent-color: #12460b;
-    }
-
-    .campo-convite input.form-control {
-        max-width: 240px;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-    }
-
-    .aviso-educador a {
-        color: #12460b;
-        font-weight: 600;
-        text-decoration: underline;
-        text-underline-offset: 3px;
-    }
-
     .dica-campo {
         margin: 6px 0 0;
         font-size: 0.85rem;
@@ -98,12 +61,6 @@
 
     .dica-senha {
         margin: -8px 0 16px;
-    }
-
-    .aviso-educador {
-        font-size: 0.9rem;
-        color: #4a4a4a;
-        margin: -4px 0 16px;
     }
 
     .form-cadastro .form-check {
@@ -160,13 +117,6 @@
 
   <h1>Criar conta</h1>
 
-  <fieldset class="tipo-conta">
-    <legend>Quero me cadastrar como</legend>
-    <label><input type="radio" name="tipo_conta" value="aluno" {% if form.tipo_conta.value != 'educador' %}checked{% endif %}> Aluno</label>
-    <label><input type="radio" name="tipo_conta" value="educador" {% if form.tipo_conta.value == 'educador' %}checked{% endif %}> Educador</label>
-    {% include "partials/erros_campo.html" with campo=form.tipo_conta %}
-  </fieldset>
-
   <div class="campos-lado-a-lado">
     <div class="mb-3">
       <label for="id_first_name">Nome</label>
@@ -206,17 +156,6 @@
     </div>
   </div>
 
-  <div id="campos-educador">
-    <div class="mb-3 campo-convite">
-      <label for="id_codigo_convite">Código de convite</label>
-      <input type="text" name="codigo_convite" id="id_codigo_convite" maxlength="8" autocomplete="off" value="{{ form.codigo_convite.value|default_if_none:'' }}"
-             class="form-control{% if form.codigo_convite.errors %} is-invalid{% endif %}">
-      {% include "partials/erros_campo.html" with campo=form.codigo_convite %}
-    </div>
-
-    <p class="aviso-educador">Você é ou deseja ser um educador parceiro do projeto? Entre em contato com a equipe (<a href="mailto:gocashsuporte@gmail.com">gocashsuporte@gmail.com</a>) para receber seu convite de cadastro com um código. No cadastro, use o mesmo e-mail que recebeu o convite.</p>
-  </div>
-
   <div class="campos-lado-a-lado">
     <div class="mb-3">
       <label for="id_password1">Senha</label>
@@ -237,7 +176,7 @@
   <div class="form-check">
     <input type="checkbox" name="aceite_termos" id="id_aceite_termos" class="form-check-input" required>
     <label class="form-check-label" for="id_aceite_termos">
-      Declaro ter <strong>16 anos ou mais (caso seja aluno)</strong> e que li e aceito os <a href="{% url 'termos_de_uso' %}" target="_blank">Termos de Uso</a> e a <a href="{% url 'politica_de_privacidade' %}" target="_blank">Política de Privacidade</a>.
+      Declaro ter <strong>16 anos ou mais</strong> e que li e aceito os <a href="{% url 'termos_de_uso' %}" target="_blank">Termos de Uso</a> e a <a href="{% url 'politica_de_privacidade' %}" target="_blank">Política de Privacidade</a>.
     </label>
     {% include "partials/erros_campo.html" with campo=form.aceite_termos %}
   </div>
@@ -247,25 +186,5 @@
     <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a></p>
   </div>
 </form>
-
-<script>
-  (function () {
-    var bloco = document.getElementById('campos-educador');
-    var opcoes = document.querySelectorAll('input[name="tipo_conta"]');
-
-    function atualizar() {
-      var educador = document.querySelector('input[name="tipo_conta"]:checked').value === 'educador';
-      bloco.hidden = !educador;
-      bloco.querySelectorAll('input').forEach(function (campo) {
-        campo.required = educador;
-      });
-    }
-
-    opcoes.forEach(function (opcao) {
-      opcao.addEventListener('change', atualizar);
-    });
-    atualizar();
-  })();
-</script>
 
 {% endblock %}

@@ -1,18 +1,20 @@
+from datetime import timedelta
+from importlib import import_module
 from io import StringIO
 
+from django.apps import apps
 from django.contrib.auth.models import Group, User
 from django.core import mail
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.db import IntegrityError, transaction
-from datetime import timedelta
-
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import ConfiguracaoSite, ConviteEducador, PerfilUsuario
-from .papeis import NOME_GRUPO_EDUCADORES, definir_perfil, tornar_principal
+from .limpeza import excluir_contas_desativadas
+from .models import ConfiguracaoSite, PerfilUsuario
+from .papeis import definir_perfil, tornar_principal
 
 SENHA = 'SenhaForte!123'
 
@@ -34,31 +36,51 @@ class PerfisTests(TestCase):
         self.assertEqual(aluno.perfil.tipo_usuario, PerfilUsuario.ALUNO)
         self.assertFalse(aluno.is_staff)
 
-    def test_educador_acessa_o_painel_pelo_grupo(self):
-        educador = criar_usuario('edu', PerfilUsuario.EDUCADOR)
-        self.assertEqual(educador.perfil.tipo_usuario, PerfilUsuario.EDUCADOR)
-        self.assertTrue(educador.is_staff)
-        self.assertFalse(educador.is_superuser)
-        self.assertTrue(educador.groups.filter(name=NOME_GRUPO_EDUCADORES).exists())
-        self.assertTrue(educador.has_perm('atividades.add_pergunta'))
-        self.assertFalse(educador.has_perm('auth.change_user'))
+    def test_so_existem_aluno_e_administrador(self):
+        self.assertEqual(
+            [valor for valor, _ in PerfilUsuario.TIPO_USUARIO_CHOICES],
+            [PerfilUsuario.ALUNO, PerfilUsuario.ADMINISTRADOR],
+        )
+
+    def test_administrador_entra_no_painel(self):
+        administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
+        self.assertEqual(administrador.perfil.tipo_usuario, PerfilUsuario.ADMINISTRADOR)
+        self.assertTrue(administrador.is_staff)
+        self.assertTrue(administrador.is_superuser)
 
     def test_voltar_para_aluno_tira_o_acesso(self):
-        educador = criar_usuario('edu', PerfilUsuario.EDUCADOR)
-        definir_perfil(educador, PerfilUsuario.ALUNO)
-        educador = recarregar(educador)
-        self.assertFalse(educador.is_staff)
-        self.assertFalse(educador.groups.exists())
-        self.assertEqual(educador.perfil.tipo_usuario, PerfilUsuario.ALUNO)
+        administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
+        definir_perfil(administrador, PerfilUsuario.ALUNO)
+        administrador = recarregar(administrador)
+        self.assertFalse(administrador.is_staff)
+        self.assertFalse(administrador.is_superuser)
+        self.assertEqual(administrador.perfil.tipo_usuario, PerfilUsuario.ALUNO)
 
     def test_superusuario_criado_pelo_django_vira_administrador(self):
         admin = User.objects.create_superuser('admin', 'admin@teste.com', SENHA)
         self.assertEqual(recarregar(admin).perfil.tipo_usuario, PerfilUsuario.ADMINISTRADOR)
 
-    def test_grupo_educadores_criado_automaticamente(self):
-        grupo = Group.objects.get(name=NOME_GRUPO_EDUCADORES)
-        self.assertTrue(grupo.permissions.filter(codename='change_modulo').exists())
-        self.assertFalse(grupo.permissions.filter(codename='change_tentativa').exists())
+    def test_grupo_educadores_nao_e_mais_criado(self):
+        self.assertFalse(Group.objects.filter(name='Educadores').exists())
+
+
+class EducadoresViramAlunosTests(TestCase):
+    def test_migracao_tira_o_acesso_dos_antigos_educadores(self):
+        educador = criar_usuario('edu')
+        educador.is_staff = True
+        educador.save()
+        PerfilUsuario.objects.filter(usuario=educador).update(tipo_usuario='educador')
+        educador.groups.add(Group.objects.create(name='Educadores'))
+        administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
+
+        migracao = import_module('contas.migrations.0012_educadores_viram_alunos')
+        migracao.educadores_viram_alunos(apps, None)
+
+        educador = recarregar(educador)
+        self.assertFalse(educador.is_staff)
+        self.assertEqual(educador.perfil.tipo_usuario, PerfilUsuario.ALUNO)
+        self.assertFalse(Group.objects.filter(name='Educadores').exists())
+        self.assertTrue(recarregar(administrador).is_staff)
 
 
 class AdministradorPrincipalTests(TestCase):
@@ -98,8 +120,8 @@ class AcoesDoPainelTests(TestCase):
         self.principal = recarregar(self.principal)
         self.administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
         self.outro_administrador = criar_usuario('adm2', PerfilUsuario.ADMINISTRADOR)
-        self.educador = criar_usuario('edu', PerfilUsuario.EDUCADOR)
         self.aluno = criar_usuario('aluno')
+        self.outro_aluno = criar_usuario('aluno2')
 
     def executar(self, quem, acao, *alvos):
         self.client.force_login(quem)
@@ -116,29 +138,26 @@ class AcoesDoPainelTests(TestCase):
         self.assertTrue(aluno.is_superuser)
         self.assertEqual(aluno.perfil.tipo_usuario, PerfilUsuario.ADMINISTRADOR)
 
-    def test_principal_promove_aluno_a_educador(self):
-        self.executar(self.principal, 'definir_como_educador', self.aluno)
-        self.assertEqual(recarregar(self.aluno).perfil.tipo_usuario, PerfilUsuario.EDUCADOR)
-
-    def test_principal_despromove_educador_e_administrador(self):
-        self.executar(self.principal, 'definir_como_aluno', self.educador, self.administrador)
-        self.assertEqual(recarregar(self.educador).perfil.tipo_usuario, PerfilUsuario.ALUNO)
-        self.assertEqual(recarregar(self.administrador).perfil.tipo_usuario, PerfilUsuario.ALUNO)
+    def test_principal_despromove_administrador(self):
+        self.executar(self.principal, 'definir_como_aluno', self.administrador)
+        administrador = recarregar(self.administrador)
+        self.assertEqual(administrador.perfil.tipo_usuario, PerfilUsuario.ALUNO)
+        self.assertFalse(administrador.is_staff)
 
     def test_administrador_comum_nao_altera_perfil(self):
-        self.executar(self.administrador, 'definir_como_educador', self.aluno)
-        self.executar(self.administrador, 'definir_como_aluno', self.educador)
+        self.executar(self.administrador, 'definir_como_administrador', self.aluno)
+        self.executar(self.administrador, 'definir_como_aluno', self.outro_administrador)
         self.assertEqual(recarregar(self.aluno).perfil.tipo_usuario, PerfilUsuario.ALUNO)
-        self.assertEqual(recarregar(self.educador).perfil.tipo_usuario, PerfilUsuario.EDUCADOR)
+        self.assertEqual(recarregar(self.outro_administrador).perfil.tipo_usuario, PerfilUsuario.ADMINISTRADOR)
 
-    def test_administrador_comum_desativa_e_ativa_alunos_e_educadores(self):
-        self.executar(self.administrador, 'desativar_contas', self.aluno, self.educador)
+    def test_administrador_comum_desativa_e_ativa_alunos(self):
+        self.executar(self.administrador, 'desativar_contas', self.aluno, self.outro_aluno)
         self.assertFalse(recarregar(self.aluno).is_active)
-        self.assertFalse(recarregar(self.educador).is_active)
+        self.assertFalse(recarregar(self.outro_aluno).is_active)
 
-        self.executar(self.administrador, 'ativar_contas', self.aluno, self.educador)
+        self.executar(self.administrador, 'ativar_contas', self.aluno, self.outro_aluno)
         self.assertTrue(recarregar(self.aluno).is_active)
-        self.assertTrue(recarregar(self.educador).is_active)
+        self.assertTrue(recarregar(self.outro_aluno).is_active)
 
     def test_administrador_comum_nao_desativa_outro_administrador(self):
         self.executar(self.administrador, 'desativar_contas', self.outro_administrador)
@@ -157,16 +176,18 @@ class AcoesDoPainelTests(TestCase):
         self.executar(self.administrador, 'desativar_contas', self.administrador)
         self.assertTrue(recarregar(self.administrador).is_active)
 
-    def test_educador_nao_ve_usuarios(self):
-        self.client.force_login(self.educador)
+    def test_aluno_nao_entra_no_painel(self):
+        self.client.force_login(self.aluno)
         resposta = self.client.get(reverse('admin:auth_user_changelist'))
-        self.assertEqual(resposta.status_code, 403)
+        self.assertEqual(resposta.status_code, 302)
 
     def test_lista_mostra_perfil_e_situacao(self):
-        self.client.force_login(self.administrador)
+        self.client.force_login(self.principal)
         resposta = self.client.get(reverse('admin:auth_user_changelist'))
-        self.assertContains(resposta, 'Educador')
+        self.assertContains(resposta, 'Administrador')
         self.assertContains(resposta, 'Ativo')
+        self.assertContains(resposta, 'Definir como Administrador')
+        self.assertNotContains(resposta, 'Educador')
 
 
 class LoginContaDesativadaTests(TestCase):
@@ -195,12 +216,79 @@ class LoginContaDesativadaTests(TestCase):
         self.assertIn('/conta/login/', resposta['Location'])
 
 
+class ExclusaoDeContasDesativadasTests(TestCase):
+    def setUp(self):
+        self.principal = criar_usuario('chefe')
+        tornar_principal(self.principal)
+        self.principal = recarregar(self.principal)
+        self.aluno = criar_usuario('aluno')
+
+    def desativar(self, *alvos):
+        self.client.force_login(self.principal)
+        return self.client.post(reverse('admin:auth_user_changelist'), {
+            'action': 'desativar_contas',
+            '_selected_action': [str(alvo.pk) for alvo in alvos],
+            'index': '0',
+            'select_across': '0',
+        }, follow=True)
+
+    def desativada_ha(self, usuario, dias):
+        User.objects.filter(pk=usuario.pk).update(is_active=False)
+        PerfilUsuario.objects.filter(usuario=usuario).update(
+            desativada_em=timezone.now() - timedelta(days=dias)
+        )
+
+    def test_desativar_guarda_a_data_e_avisa_o_prazo(self):
+        resposta = self.desativar(self.aluno)
+        self.assertIsNotNone(recarregar(self.aluno).perfil.desativada_em)
+        self.assertContains(resposta, 'excluídas em definitivo depois de 6 meses')
+        self.assertContains(resposta, 'Inativo, excluído em')
+
+    def test_reativar_cancela_a_exclusao(self):
+        self.desativar(self.aluno)
+        self.client.post(reverse('admin:auth_user_changelist'), {
+            'action': 'ativar_contas',
+            '_selected_action': [str(self.aluno.pk)],
+            'index': '0',
+            'select_across': '0',
+        })
+        self.assertIsNone(recarregar(self.aluno).perfil.desativada_em)
+
+    def test_exclui_so_depois_de_180_dias(self):
+        quase = criar_usuario('quase')
+        self.desativada_ha(quase, 179)
+        self.desativada_ha(self.aluno, 181)
+        ativo = criar_usuario('ativo')
+
+        self.assertEqual(excluir_contas_desativadas(), ['aluno'])
+        self.assertFalse(User.objects.filter(username='aluno').exists())
+        self.assertTrue(User.objects.filter(pk=quase.pk).exists())
+        self.assertTrue(User.objects.filter(pk=ativo.pk).exists())
+
+    def test_abrir_o_painel_roda_a_limpeza(self):
+        self.desativada_ha(self.aluno, 200)
+        self.client.force_login(self.principal)
+        self.client.get(reverse('admin:index'))
+        self.assertFalse(User.objects.filter(pk=self.aluno.pk).exists())
+
+    def test_comando_manual(self):
+        self.desativada_ha(self.aluno, 200)
+        saida = StringIO()
+        call_command('excluir_contas_desativadas', stdout=saida)
+        self.assertIn('aluno', saida.getvalue())
+        self.assertFalse(User.objects.filter(pk=self.aluno.pk).exists())
+
+    def test_migracao_marca_as_contas_que_ja_estavam_desativadas(self):
+        User.objects.filter(pk=self.aluno.pk).update(is_active=False)
+        migracao = import_module('contas.migrations.0015_marcar_contas_ja_desativadas')
+        migracao.marcar_contas_ja_desativadas(apps, None)
+        self.assertIsNotNone(recarregar(self.aluno).perfil.desativada_em)
+        self.assertIsNone(recarregar(self.principal).perfil.desativada_em)
+
+
 class LogsTests(TestCase):
     def test_so_administradores_veem_os_logs(self):
         self.client.force_login(criar_usuario('aluno'))
-        self.assertEqual(self.client.get(reverse('logs')).status_code, 403)
-
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
         self.assertEqual(self.client.get(reverse('logs')).status_code, 403)
 
         self.client.force_login(criar_usuario('adm', PerfilUsuario.ADMINISTRADOR))
@@ -209,7 +297,6 @@ class LogsTests(TestCase):
 
 def dados_cadastro(**extras):
     dados = {
-        'tipo_conta': 'aluno',
         'first_name': 'Nova',
         'last_name': 'Pessoa',
         'username': 'novo',
@@ -255,154 +342,16 @@ class CadastroTests(TestCase):
         resposta = self.client.post(reverse('cadastro'), dados_cadastro(email='ANTIGO@teste.com', confirmar_email='ANTIGO@teste.com'))
         self.assertContains(resposta, 'Já existe uma conta com este e-mail')
 
-    def test_educador_precisa_do_codigo(self):
-        resposta = self.client.post(reverse('cadastro'), dados_cadastro(tipo_conta='educador'))
-        self.assertContains(resposta, 'Informe o código de convite')
-        self.assertFalse(User.objects.filter(username='novo').exists())
+    def test_cadastro_nao_tem_mais_opcao_de_educador(self):
+        resposta = self.client.get(reverse('cadastro'))
+        self.assertNotContains(resposta, 'Educador')
+        self.assertNotContains(resposta, 'convite')
 
-
-def dados_educador(convite, **extras):
-    dados = {
-        'tipo_conta': 'educador',
-        'email': convite.email,
-        'confirmar_email': convite.email,
-        'codigo_convite': convite.codigo,
-    }
-    dados.update(extras)
-    return dados_cadastro(**dados)
-
-
-class ConviteNoCadastroTests(TestCase):
-    def setUp(self):
-        self.administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
-        self.convite = ConviteEducador.objects.create(email='nova.educadora@teste.com', criado_por=self.administrador)
-
-    def test_codigo_valido_cria_educador_ativo_na_hora(self):
-        resposta = self.client.post(reverse('cadastro'), dados_educador(self.convite))
-        self.assertRedirects(resposta, reverse('login'))
-
-        novo = recarregar(User.objects.get(username='novo'))
-        self.assertTrue(novo.is_active)
-        self.assertTrue(novo.is_staff)
-        self.assertEqual(novo.perfil.tipo_usuario, PerfilUsuario.EDUCADOR)
-        self.assertTrue(novo.groups.filter(name=NOME_GRUPO_EDUCADORES).exists())
-
-        convite = ConviteEducador.objects.get(pk=self.convite.pk)
-        self.assertEqual(convite.usado_por, novo)
-        self.assertEqual(convite.situacao, ConviteEducador.USADO)
-
-    def test_codigo_aceita_minusculas_e_espacos(self):
-        self.client.post(reverse('cadastro'), dados_educador(self.convite, codigo_convite=f' {self.convite.codigo.lower()} '))
-        self.assertTrue(User.objects.filter(username='novo', is_staff=True).exists())
-
-    def test_codigo_preso_ao_email(self):
-        resposta = self.client.post(reverse('cadastro'), dados_educador(
-            self.convite, email='outra@teste.com', confirmar_email='outra@teste.com',
-        ))
-        self.assertContains(resposta, 'foi enviado para outro e-mail')
-        self.assertFalse(User.objects.filter(username='novo').exists())
-
-    def test_codigo_vencido(self):
-        ConviteEducador.objects.filter(pk=self.convite.pk).update(expira_em=timezone.now() - timedelta(minutes=1))
-        resposta = self.client.post(reverse('cadastro'), dados_educador(self.convite))
-        self.assertContains(resposta, 'venceu')
-        self.assertFalse(User.objects.filter(username='novo').exists())
-
-    def test_codigo_so_vale_uma_vez(self):
-        self.client.post(reverse('cadastro'), dados_educador(self.convite))
-        resposta = self.client.post(reverse('cadastro'), dados_educador(
-            self.convite, username='segundo',
-        ))
-        self.assertFalse(User.objects.filter(username='segundo').exists())
-        self.assertEqual(resposta.status_code, 200)
-
-    def test_codigo_inexistente(self):
-        resposta = self.client.post(reverse('cadastro'), dados_cadastro(
-            tipo_conta='educador', codigo_convite='ZZZZZZZZ',
-        ))
-        self.assertContains(resposta, 'Código de convite inválido')
-
-    def test_aluno_ignora_o_codigo(self):
-        self.client.post(reverse('cadastro'), dados_cadastro(codigo_convite='QUALQUER'))
+    def test_campos_antigos_de_educador_sao_ignorados(self):
+        self.client.post(reverse('cadastro'), dados_cadastro(tipo_conta='educador', codigo_convite='ABCDEFGH'))
         novo = recarregar(User.objects.get(username='novo'))
         self.assertEqual(novo.perfil.tipo_usuario, PerfilUsuario.ALUNO)
-
-    def test_link_do_email_ja_preenche_o_codigo(self):
-        resposta = self.client.get(reverse('cadastro'), {'convite': self.convite.codigo})
-        self.assertContains(resposta, f'value="{self.convite.codigo}"')
-        self.assertContains(resposta, 'value="educador" checked')
-
-    def test_convite_vale_por_dois_dias(self):
-        restante = self.convite.expira_em - self.convite.criado_em
-        self.assertAlmostEqual(restante.total_seconds(), timedelta(days=2).total_seconds(), delta=5)
-
-
-class ConvitesNoPainelTests(TestCase):
-    def setUp(self):
-        self.administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
-        self.url_lista = reverse('admin:contas_conviteeducador_changelist')
-        self.url_novo = reverse('admin:contas_conviteeducador_add')
-
-    def acao(self, acao, *convites):
-        return self.client.post(self.url_lista, {
-            'action': acao,
-            '_selected_action': [str(convite.pk) for convite in convites],
-            'index': '0',
-            'select_across': '0',
-        })
-
-    def test_administrador_comum_envia_convite_por_email(self):
-        self.client.force_login(self.administrador)
-        resposta = self.client.post(self.url_novo, {'email': 'parceiro@teste.com', '_save': 'Salvar'})
-        self.assertRedirects(resposta, self.url_lista)
-
-        convite = ConviteEducador.objects.get(email='parceiro@teste.com')
-        self.assertEqual(convite.criado_por, self.administrador)
-        self.assertEqual(len(convite.codigo), 8)
-        self.assertEqual(mail.outbox[-1].to, ['parceiro@teste.com'])
-        self.assertIn(convite.codigo, mail.outbox[-1].body)
-        self.assertIn(f'?convite={convite.codigo}', mail.outbox[-1].body)
-
-    def test_nao_convida_email_que_ja_tem_conta(self):
-        criar_usuario('aluna')
-        self.client.force_login(self.administrador)
-        resposta = self.client.post(self.url_novo, {'email': 'ALUNA@teste.com', '_save': 'Salvar'})
-        self.assertContains(resposta, 'Já existe uma conta com este e-mail')
-        self.assertFalse(ConviteEducador.objects.exists())
-
-    def test_nao_duplica_convite_valido(self):
-        ConviteEducador.objects.create(email='parceiro@teste.com')
-        self.client.force_login(self.administrador)
-        resposta = self.client.post(self.url_novo, {'email': 'parceiro@teste.com', '_save': 'Salvar'})
-        self.assertContains(resposta, 'Já existe um convite válido')
-        self.assertEqual(ConviteEducador.objects.count(), 1)
-
-    def test_reenviar_gera_codigo_novo_e_renova_o_prazo(self):
-        convite = ConviteEducador.objects.create(email='parceiro@teste.com')
-        ConviteEducador.objects.filter(pk=convite.pk).update(expira_em=timezone.now() - timedelta(days=1))
-        codigo_antigo = convite.codigo
-
-        self.client.force_login(self.administrador)
-        self.acao('reenviar', convite)
-
-        convite.refresh_from_db()
-        self.assertNotEqual(convite.codigo, codigo_antigo)
-        self.assertEqual(convite.situacao, ConviteEducador.PENDENTE)
-        self.assertIn(convite.codigo, mail.outbox[-1].body)
-
-    def test_cancelar_so_apaga_convites_nao_usados(self):
-        aberto = ConviteEducador.objects.create(email='aberto@teste.com')
-        usado = ConviteEducador.objects.create(email='usado@teste.com', usado_em=timezone.now())
-
-        self.client.force_login(self.administrador)
-        self.acao('cancelar', aberto, usado)
-
-        self.assertFalse(ConviteEducador.objects.filter(pk=aberto.pk).exists())
-        self.assertTrue(ConviteEducador.objects.filter(pk=usado.pk).exists())
-
-    def test_educador_nao_ve_convites(self):
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
-        self.assertEqual(self.client.get(self.url_lista).status_code, 403)
+        self.assertFalse(novo.is_staff)
 
 
 class EmailUnicoNoBancoTests(TestCase):
@@ -468,11 +417,11 @@ class InterruptorMfaTests(TestCase):
         self.assertFalse(configuracao.exigir_mfa)
         self.assertEqual(configuracao.atualizada_por, administrador)
 
-    def test_educador_nao_altera_o_mfa(self):
+    def test_aluno_nao_altera_o_mfa(self):
         configuracao = ConfiguracaoSite.atual()
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
+        self.client.force_login(criar_usuario('aluno'))
         url = reverse('admin:contas_configuracaosite_change', args=[configuracao.pk])
-        self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertEqual(self.client.get(url).status_code, 302)
         self.client.post(url, {'_save': 'Salvar'})
         self.assertTrue(ConfiguracaoSite.atual().exigir_mfa)
 
@@ -535,10 +484,10 @@ class MeuPerfilTests(TestCase):
         self.assertContains(resposta, 'Aluno')
         self.assertContains(resposta, 'Cashs')
 
-    def test_educador_tambem_ve_o_perfil(self):
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
+    def test_administrador_tambem_ve_o_perfil(self):
+        self.client.force_login(criar_usuario('adm', PerfilUsuario.ADMINISTRADOR))
         resposta = self.client.get(self.url)
-        self.assertContains(resposta, 'Educador')
+        self.assertContains(resposta, 'Administrador')
 
     def test_altera_o_nome(self):
         resposta = self.client.post(self.url, {'acao': 'nome', 'first_name': 'Ana', 'last_name': 'Lima'})
@@ -612,7 +561,7 @@ class LogsDeAuditoriaTests(TestCase):
         self.assertContains(resposta, 'Nenhum registro encontrado')
 
     def test_so_administrador_ve(self):
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
+        self.client.force_login(criar_usuario('aluno'))
         self.assertEqual(self.client.get(reverse('logs_detalhados')).status_code, 403)
 
 

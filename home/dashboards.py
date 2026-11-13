@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from atividades.cashs import cashs_da_nota, melhores_notas, saldo_de_cashs
 from atividades.models import Atividade, ProgressoAtividade, Resposta, Tentativa
-from contas.models import ConviteEducador, PerfilUsuario
+from contas.models import PerfilUsuario
 
 MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
 
@@ -153,7 +153,7 @@ def _alunos_ativos_ids():
     )
 
 
-def painel_educador():
+def _painel_alunos():
     atividades = _atividades_disponiveis()
     alunos_ids = _alunos_ativos_ids()
 
@@ -224,7 +224,7 @@ def _ultimos_meses(quantidade):
 
 
 def painel_administrador():
-    painel = painel_educador()
+    painel = _painel_alunos()
 
     meses, inicio = _ultimos_meses(6)
     cadastros = {mes: 0 for mes in meses}
@@ -235,10 +235,6 @@ def painel_administrador():
             cadastros[chave] += 1
 
     painel.update({
-        'educadores': User.objects.filter(is_active=True, perfil__tipo_usuario=PerfilUsuario.EDUCADOR).count(),
-        'convites_pendentes': ConviteEducador.objects.filter(
-            usado_em__isnull=True, expira_em__gte=timezone.now()
-        ).count(),
         'contas_inativas': User.objects.filter(is_active=False).count(),
         'linhas_cadastros': [
             {'mes': f"{MESES[mes - 1]}/{str(ano)[2:]}", 'quantidade': cadastros[(ano, mes)]}

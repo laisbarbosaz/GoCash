@@ -203,9 +203,9 @@ class AcompanhamentoPorModuloTests(TestCase):
 
         self.nada = User.objects.create_user('carla', 'carla@teste.com', 'SenhaForte!123')
 
-        self.educador = User.objects.create_user('edu', 'edu@teste.com', 'SenhaForte!123')
-        definir_perfil(self.educador, PerfilUsuario.EDUCADOR)
-        self.client.force_login(User.objects.get(pk=self.educador.pk))
+        self.administrador = User.objects.create_user('adm', 'adm@teste.com', 'SenhaForte!123')
+        definir_perfil(self.administrador, PerfilUsuario.ADMINISTRADOR)
+        self.client.force_login(User.objects.get(pk=self.administrador.pk))
 
     def test_mostra_os_tres_status_do_modulo(self):
         resposta = self.client.get(self.url, {'modulo': self.atividade.modulo.slug})
@@ -226,7 +226,7 @@ class AcompanhamentoPorModuloTests(TestCase):
         resumo = resposta.context['resumo_modulos'][0]['resumo']
         self.assertEqual(resumo, {'em_andamento': 1, 'concluida': 1, 'nao_iniciada': 1})
 
-    def test_educador_ve_a_tabela_de_progresso(self):
+    def test_administrador_ve_a_tabela_de_progresso(self):
         resposta = self.client.get(reverse('admin:atividades_progressoatividade_changelist'))
         self.assertEqual(resposta.status_code, 200)
 
@@ -325,9 +325,11 @@ class MenuDoPainelTests(TestCase):
         menu = html[html.index('id="nav-sidebar"'):]
         posicoes = [menu.index(texto) for texto in (
             'Módulos de Aprendizagem', 'Atividades dos Módulos', 'Acompanhamento por módulo',
-            '>Usuários<', 'Convites de educador', 'Logs de auditoria', 'Grupos',
+            '>Usuários<', 'Configurações do site', 'Logs de auditoria',
         )]
         self.assertEqual(posicoes, sorted(posicoes))
+        self.assertNotIn('Convites', menu)
+        self.assertNotIn('Grupos', menu)
         self.assertNotIn('Perfil usuarios', menu)
 
 
