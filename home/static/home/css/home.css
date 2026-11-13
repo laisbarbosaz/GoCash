@@ -74,3 +74,47 @@
     text-decoration: underline;
     text-underline-offset: 3px;
 }
+
+.moedas-hoje {
+    margin: 0 0 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #cfdccb;
+    color: #1f2a1d;
+}
+
+.moedas-hoje h4 {
+    color: #0b2608;
+}
+
+.moedas-hoje ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 32px;
+    padding: 0;
+    margin: 12px 0 4px;
+}
+
+.moedas-hoje li {
+    color: #1f2a1d;
+}
+
+.moedas-hoje .sobe {
+    color: #1b6e1f;
+}
+
+.moedas-hoje .cai {
+    color: #a42020;
+}
+
+.moedas-hoje .fonte {
+    font-size: 0.85rem;
+    color: #4a4a4a;
+}
+
+.moedas-hoje a {
+    color: #12460b;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}

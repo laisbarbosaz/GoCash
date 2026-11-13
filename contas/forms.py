@@ -3,24 +3,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 
-from .convites import ConviteInvalido, buscar_convite
-
 
 class CadastroForm(UserCreationForm):
-    ALUNO = 'aluno'
-    EDUCADOR = 'educador'
-
-    tipo_conta = forms.ChoiceField(
-        label="Quero me cadastrar como",
-        choices=[(ALUNO, 'Aluno'), (EDUCADOR, 'Educador')],
-        initial=ALUNO,
-        widget=forms.RadioSelect,
-    )
     first_name = forms.CharField(required=True, max_length=150, label="Nome")
     last_name = forms.CharField(required=True, max_length=150, label="Sobrenome")
     email = forms.EmailField(required=True, label="E-mail")
     confirmar_email = forms.EmailField(required=True, label="Confirmar e-mail")
-    codigo_convite = forms.CharField(required=False, max_length=8, label="Código de convite")
     aceite_termos = forms.BooleanField(
         required=True,
         label=mark_safe(
@@ -48,17 +36,6 @@ class CadastroForm(UserCreationForm):
         confirmacao = dados.get('confirmar_email')
         if email and confirmacao and email.lower() != confirmacao.strip().lower():
             self.add_error('confirmar_email', "Os e-mails não são iguais.")
-
-        self.convite = None
-        if dados.get('tipo_conta') == self.EDUCADOR:
-            codigo = (dados.get('codigo_convite') or '').strip()
-            if not codigo:
-                self.add_error('codigo_convite', "Informe o código de convite que você recebeu por e-mail.")
-            else:
-                try:
-                    self.convite = buscar_convite(codigo, email)
-                except ConviteInvalido as erro:
-                    self.add_error('codigo_convite', str(erro))
 
         return dados
 

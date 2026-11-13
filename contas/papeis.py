@@ -1,61 +1,14 @@
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.utils import translation
 from django.db import transaction
-from django.db.models import Q
+from django.utils import timezone
 
 from .models import PerfilUsuario
-
-NOME_GRUPO_EDUCADORES = 'Educadores'
-
-PERMISSOES_EDUCADOR = [
-    ('modulos', 'add_modulo'),
-    ('modulos', 'change_modulo'),
-    ('modulos', 'delete_modulo'),
-    ('modulos', 'view_modulo'),
-    ('modulos', 'add_conteudomodulo'),
-    ('modulos', 'change_conteudomodulo'),
-    ('modulos', 'delete_conteudomodulo'),
-    ('modulos', 'view_conteudomodulo'),
-    ('atividades', 'add_atividade'),
-    ('atividades', 'change_atividade'),
-    ('atividades', 'delete_atividade'),
-    ('atividades', 'view_atividade'),
-    ('atividades', 'add_pergunta'),
-    ('atividades', 'change_pergunta'),
-    ('atividades', 'delete_pergunta'),
-    ('atividades', 'view_pergunta'),
-    ('atividades', 'add_alternativa'),
-    ('atividades', 'change_alternativa'),
-    ('atividades', 'delete_alternativa'),
-    ('atividades', 'view_alternativa'),
-    ('atividades', 'view_tentativa'),
-    ('atividades', 'view_progressoatividade'),
-]
-
-
-def criar_grupo_educadores():
-    grupo = Group.objects.filter(name=NOME_GRUPO_EDUCADORES).first()
-    if grupo:
-        return grupo
-
-    filtro = Q()
-    for app_label, codename in PERMISSOES_EDUCADOR:
-        filtro |= Q(content_type__app_label=app_label, codename=codename)
-    permissoes = list(Permission.objects.filter(filtro))
-    if len(permissoes) < len(PERMISSOES_EDUCADOR):
-        return None
-
-    grupo = Group.objects.create(name=NOME_GRUPO_EDUCADORES)
-    grupo.permissions.set(permissoes)
-    return grupo
-
 
 def tipo_pelas_permissoes(usuario):
     if usuario.is_superuser:
         return PerfilUsuario.ADMINISTRADOR
-    if usuario.is_staff:
-        return PerfilUsuario.EDUCADOR
     return PerfilUsuario.ALUNO
 
 
@@ -84,22 +37,17 @@ def pode_definir_perfil(quem, alvo):
 def definir_situacao(usuario, ativo):
     usuario.is_active = ativo
     usuario.save(update_fields=['is_active'])
+    PerfilUsuario.objects.filter(usuario=usuario).update(desativada_em=None if ativo else timezone.now())
 
 
 def definir_perfil(usuario, tipo):
     if eh_principal(usuario):
         raise ValueError('O perfil do Administrador principal não pode ser alterado.')
 
-    usuario.is_superuser = tipo == PerfilUsuario.ADMINISTRADOR
-    usuario.is_staff = tipo in (PerfilUsuario.EDUCADOR, PerfilUsuario.ADMINISTRADOR)
+    administrador = tipo == PerfilUsuario.ADMINISTRADOR
+    usuario.is_superuser = administrador
+    usuario.is_staff = administrador
     usuario.save()
-
-    grupo = criar_grupo_educadores()
-    if grupo:
-        if tipo == PerfilUsuario.EDUCADOR:
-            usuario.groups.add(grupo)
-        else:
-            usuario.groups.remove(grupo)
 
 
 @transaction.atomic
@@ -111,10 +59,6 @@ def tornar_principal(usuario):
     usuario.is_staff = True
     usuario.is_superuser = True
     usuario.save()
-
-    grupo = Group.objects.filter(name=NOME_GRUPO_EDUCADORES).first()
-    if grupo:
-        usuario.groups.remove(grupo)
 
     PerfilUsuario.objects.filter(usuario=usuario).update(administrador_principal=True)
 

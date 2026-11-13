@@ -1,5 +1,4 @@
 import random
-import secrets
 from datetime import timedelta
 
 from django.db import models
@@ -14,11 +13,9 @@ def nome_e_usuario(usuario):
 
 class PerfilUsuario(models.Model):
     ALUNO = 'aluno'
-    EDUCADOR = 'educador'
     ADMINISTRADOR = 'administrador'
     TIPO_USUARIO_CHOICES = [
         (ALUNO, 'Aluno'),
-        (EDUCADOR, 'Educador'),
         (ADMINISTRADOR, 'Administrador'),
     ]
 
@@ -26,6 +23,7 @@ class PerfilUsuario(models.Model):
     tipo_usuario = models.CharField('Perfil', max_length=15, choices=TIPO_USUARIO_CHOICES, default=ALUNO)
     administrador_principal = models.BooleanField('Administrador principal', default=False)
     aparecer_no_ranking = models.BooleanField('Aparecer no ranking', default=False)
+    desativada_em = models.DateTimeField('Desativada em', null=True, blank=True)
     aceitou_termos = models.BooleanField(default=False)
     data_aceite_termos = models.DateTimeField(null=True, blank=True)
 
@@ -65,71 +63,6 @@ class CodigoVerificacao(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} - {self.codigo}"
-
-
-LETRAS_DO_CONVITE = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-DIAS_VALIDADE_CONVITE = 2
-
-
-def gerar_codigo_convite():
-    return ''.join(secrets.choice(LETRAS_DO_CONVITE) for _ in range(8))
-
-
-def validade_do_convite():
-    return timezone.now() + timedelta(days=DIAS_VALIDADE_CONVITE)
-
-
-class ConviteEducador(models.Model):
-    PENDENTE = 'Aguardando cadastro'
-    USADO = 'Usado'
-    VENCIDO = 'Vencido'
-
-    email = models.EmailField('E-mail do educador')
-    codigo = models.CharField('Código', max_length=8, unique=True, default=gerar_codigo_convite, editable=False)
-    criado_em = models.DateTimeField('Enviado em', auto_now_add=True)
-    expira_em = models.DateTimeField('Vale até', default=validade_do_convite, editable=False)
-    criado_por = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='convites_enviados',
-        verbose_name='Enviado por',
-    )
-    usado_em = models.DateTimeField('Usado em', null=True, blank=True, editable=False)
-    usado_por = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='+',
-        verbose_name='Conta criada',
-        editable=False,
-    )
-
-    class Meta:
-        verbose_name = 'Convite de educador'
-        verbose_name_plural = 'Convites de educador'
-        ordering = ['-criado_em']
-
-    def __str__(self):
-        return f"{self.email} - {self.situacao}"
-
-    @property
-    def situacao(self):
-        if self.usado_em:
-            return self.USADO
-        if timezone.now() > self.expira_em:
-            return self.VENCIDO
-        return self.PENDENTE
-
-    def esta_valido(self):
-        return self.situacao == self.PENDENTE
-
-    def renovar(self):
-        self.codigo = gerar_codigo_convite()
-        self.expira_em = validade_do_convite()
-        self.save(update_fields=['codigo', 'expira_em'])
 
 
 class ConfiguracaoSite(models.Model):

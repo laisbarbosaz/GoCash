@@ -5,12 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db import transaction
 from django.shortcuts import render, redirect
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 
-from .convites import ConviteInvalido, usar_convite
 from .forms import (
     AlterarEmailForm,
     AlterarNomeForm,
@@ -164,25 +162,12 @@ def cadastro(request):
     if request.method == "POST":
         form = CadastroForm(request.POST)
         if form.is_valid():
-            educador = form.cleaned_data['tipo_conta'] == CadastroForm.EDUCADOR
-            try:
-                with transaction.atomic():
-                    usuario = form.save()
-                    if educador:
-                        usar_convite(form.convite, usuario)
-            except ConviteInvalido as erro:
-                form.add_error('codigo_convite', str(erro))
-            else:
-                if educador:
-                    messages.success(request, "Conta de educador criada! Faça login para acessar o painel.")
-                else:
-                    messages.success(request, "Conta criada com sucesso! Faça login para continuar.")
-                return redirect("login")
+            form.save()
+            messages.success(request, "Conta criada com sucesso! Faça login para continuar.")
+            return redirect("login")
         messages.error(request, "Houve um erro ao criar sua conta. Verifique os campos novamente.")
     else:
-        codigo = request.GET.get('convite', '').strip().upper()[:8]
-        inicial = {'tipo_conta': CadastroForm.EDUCADOR, 'codigo_convite': codigo} if codigo else {}
-        form = CadastroForm(initial=inicial)
+        form = CadastroForm()
     return render(request, "contas/cadastro.html", {"form": form})
 
 
