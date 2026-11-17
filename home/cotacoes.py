@@ -3,10 +3,7 @@ from datetime import datetime
 import requests
 from django.core.cache import cache
 
-<<<<<<< HEAD
 SLUG_DO_MODULO = 'economia-global'
-=======
->>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
 MOEDAS = 'USD-BRL,EUR-BRL,BTC-BRL'
 URL_API = f'https://economia.awesomeapi.com.br/json/last/{MOEDAS}'
 CHAVE_CACHE = 'cotacoes_do_dia'

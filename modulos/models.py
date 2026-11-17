@@ -12,10 +12,6 @@ class Modulo(models.Model):
         null=True,
         blank=True,
     )
-<<<<<<< HEAD
-=======
-    mostrar_cotacoes = models.BooleanField('Mostrar cotações do dia', default=False)
->>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
 
     class Meta:
         verbose_name = "Módulo"
