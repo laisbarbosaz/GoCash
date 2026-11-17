@@ -2,6 +2,8 @@ from django.shortcuts import render
 
 from modulos.models import Modulo
 
+from .cotacoes import SLUG_DO_MODULO, buscar_cotacoes
+
 TRILHA = [
     ('entendendo-o-seu-orcamento', 'anote o que entra e o que sai. É a base de todo o resto.'),
     ('controles-e-dividas', 'como usar o cartão sem virar dívida e o que fazer se já estiver devendo.'),
@@ -12,6 +14,8 @@ TRILHA = [
     ('economia-global', 'por que o dólar e a inflação mudam o preço das coisas.'),
 ]
 
+NOMES_CURTOS = {'USD': 'Dólar', 'EUR': 'Euro', 'BTC': 'Bitcoin'}
+
 
 def pagina_inicial(request):
     modulos = Modulo.objects.in_bulk([slug for slug, _ in TRILHA], field_name='slug')
@@ -20,7 +24,17 @@ def pagina_inicial(request):
         for slug, texto in TRILHA
         if slug in modulos
     ]
-    return render(request, 'home/inicio.html', {'passos': passos})
+    contexto = {'passos': passos}
+
+    modulo_cotacoes = Modulo.objects.filter(slug=SLUG_DO_MODULO).first()
+    if modulo_cotacoes:
+        cotacoes, _ = buscar_cotacoes()
+        contexto['modulo_cotacoes'] = modulo_cotacoes
+        contexto['moedas'] = [
+            {**cotacao, 'nome_curto': NOMES_CURTOS.get(cotacao['codigo'], cotacao['codigo'])}
+            for cotacao in cotacoes
+        ]
+    return render(request, 'home/inicio.html', contexto)
 
 
 def quem_somos(request):

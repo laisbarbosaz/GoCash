@@ -1,6 +1,6 @@
 from django import template
 
-from home.dashboards import minhas_atividades, painel_administrador, painel_educador, ranking
+from home.dashboards import minhas_atividades, painel_administrador, ranking
 
 register = template.Library()
 
@@ -24,6 +24,4 @@ def ranking_alunos(usuario):
 
 @register.inclusion_tag('home/dashboards/equipe.html')
 def dashboard_equipe(usuario):
-    if usuario.is_superuser:
-        return {'usuario': usuario, 'administrador': True, 'painel': painel_administrador()}
-    return {'usuario': usuario, 'administrador': False, 'painel': painel_educador()}
+    return {'usuario': usuario, 'painel': painel_administrador()}

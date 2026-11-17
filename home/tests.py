@@ -6,11 +6,11 @@ from django.test import TestCase
 from django.urls import reverse
 
 from atividades.models import Alternativa, Atividade, Pergunta, ProgressoAtividade, Resposta, Tentativa
-from contas.models import ConviteEducador, PerfilUsuario
+from contas.models import PerfilUsuario
 from contas.papeis import definir_perfil
 from modulos.models import Modulo
 
-from .dashboards import minhas_atividades, painel_administrador, painel_educador, ranking
+from .dashboards import minhas_atividades, painel_administrador, ranking
 
 SENHA = 'SenhaForte!123'
 sem_cotacoes = patch('home.cotacoes.requests.get', side_effect=requests.RequestException)
@@ -99,7 +99,7 @@ class MinhasAtividadesTests(TestCase):
     @sem_cotacoes
     def test_visitante_e_equipe_nao_veem_minhas_atividades(self, _):
         self.assertNotContains(self.client.get(reverse('pagina_inicial')), 'Minhas atividades')
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
+        self.client.force_login(criar_usuario('adm', PerfilUsuario.ADMINISTRADOR))
         self.assertNotContains(self.client.get(reverse('pagina_inicial')), 'Minhas atividades')
 
 
@@ -148,9 +148,9 @@ class RankingTests(TestCase):
     def test_equipe_e_contas_desativadas_ficam_de_fora(self):
         inativo = self.aluno_com('ana', 9)
         User.objects.filter(pk=inativo.pk).update(is_active=False)
-        educador = criar_usuario('edu', PerfilUsuario.EDUCADOR)
-        participar_do_ranking(educador)
-        enviar(educador, self.atividade, 10)
+        administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
+        participar_do_ranking(administrador)
+        enviar(administrador, self.atividade, 10)
         self.assertEqual(ranking()['linhas'], [])
 
     @sem_cotacoes
@@ -192,11 +192,10 @@ class PainelEquipeTests(TestCase):
         ProgressoAtividade.objects.create(usuario=self.abriu, atividade=self.dividas)
         self.nada = criar_usuario('carla')
 
-        self.educador = criar_usuario('edu', PerfilUsuario.EDUCADOR)
         self.administrador = criar_usuario('adm', PerfilUsuario.ADMINISTRADOR)
 
-    def test_numeros_do_educador(self):
-        painel = painel_educador()
+    def test_numeros_de_engajamento(self):
+        painel = painel_administrador()
         self.assertEqual(painel['alunos'], 3)
         self.assertEqual(painel['atividades'], 2)
         self.assertEqual(painel['taxa_conclusao'], 17)
@@ -209,33 +208,27 @@ class PainelEquipeTests(TestCase):
         })
         self.assertEqual(painel['grafico_cashs']['valores'], [0, 80])
 
-    def test_numeros_do_administrador(self):
-        ConviteEducador.objects.create(email='novo.educador@teste.com')
+    def test_numeros_de_contas(self):
         self.nada.is_active = False
         self.nada.save()
 
         painel = painel_administrador()
-        self.assertEqual(painel['educadores'], 1)
-        self.assertEqual(painel['convites_pendentes'], 1)
+        self.assertNotIn('educadores', painel)
+        self.assertNotIn('convites_pendentes', painel)
         self.assertEqual(painel['contas_inativas'], 1)
         self.assertEqual(painel['alunos'], 2)
         self.assertEqual(len(painel['grafico_cadastros']['valores']), 6)
         self.assertEqual(painel['grafico_cadastros']['valores'][-1], User.objects.count())
-
-    def test_educador_ve_o_painel_dele_no_topo_do_painel(self):
-        self.client.force_login(self.educador)
-        resposta = self.client.get(reverse('admin:index'))
-        self.assertContains(resposta, 'Situação dos alunos por módulo')
-        self.assertContains(resposta, 'Cashs acumulados por módulo')
-        self.assertNotContains(resposta, 'Novos cadastros nos últimos 6 meses')
-        self.assertNotContains(resposta, 'Convites de educador')
 
     def test_administrador_ve_usuarios_e_engajamento(self):
         self.client.force_login(self.administrador)
         resposta = self.client.get(reverse('admin:index'))
         self.assertContains(resposta, 'Novos cadastros nos últimos 6 meses')
         self.assertContains(resposta, 'Situação dos alunos por módulo')
-        self.assertContains(resposta, 'Educadores ativos')
+        self.assertContains(resposta, 'Cashs acumulados por módulo')
+        self.assertContains(resposta, 'Contas desativadas')
+        self.assertNotContains(resposta, 'Educador')
+        self.assertNotContains(resposta, 'Convite')
 
 
 class CotacoesNoModuloTests(TestCase):
@@ -243,7 +236,11 @@ class CotacoesNoModuloTests(TestCase):
         from django.core.cache import cache
         cache.clear()
         self.modulo = Modulo.objects.create(
+<<<<<<< HEAD
+            nome_modulo='Economia Global', descricao_modulo='x', slug='economia-global',
+=======
             nome_modulo='Dólar e câmbio', descricao_modulo='x', mostrar_cotacoes=True,
+>>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
         )
         self.resposta_api = {
             'USDBRL': {
@@ -278,13 +275,41 @@ class CotacoesNoModuloTests(TestCase):
             resposta = self.client.get(reverse('detalhe_modulo', args=[self.modulo.slug]))
         self.assertContains(resposta, 'Não foi possível carregar as cotações')
 
-    def test_pagina_inicial_nao_mostra_cotacoes(self):
+    def test_pagina_inicial_convida_para_o_modulo_de_cotacoes(self):
+        self.api_ok()
+        resposta = self.client.get(reverse('pagina_inicial'))
+        self.assertContains(resposta, 'Moedas hoje')
+        self.assertContains(resposta, '<strong>Dólar</strong> R$ 5,43')
+        self.assertContains(resposta, reverse('detalhe_modulo', args=[self.modulo.slug]))
+        self.assertNotContains(resposta, 'Cotações agora')
+
+    def test_pagina_inicial_sem_api_continua_com_o_convite(self):
+        with patch('home.cotacoes.requests.get', side_effect=requests.RequestException):
+            resposta = self.client.get(reverse('pagina_inicial'))
+        self.assertContains(resposta, 'Moedas hoje')
+        self.assertNotContains(resposta, '<strong>Dólar</strong>')
+        self.assertContains(resposta, reverse('detalhe_modulo', args=[self.modulo.slug]))
+
+<<<<<<< HEAD
+    def test_cadastro_de_modulo_nao_tem_mais_a_opcao_de_cotacoes(self):
+        self.client.force_login(criar_usuario('adm', PerfilUsuario.ADMINISTRADOR))
+        resposta = self.client.get(reverse('admin:modulos_modulo_add'))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertNotContains(resposta, 'Mostrar cotações')
+
+    def test_sem_modulo_de_cotacoes_a_home_nao_chama_a_api(self):
+        self.modulo.delete()
+=======
+    def test_sem_modulo_de_cotacoes_a_home_nao_chama_a_api(self):
+        Modulo.objects.filter(pk=self.modulo.pk).update(mostrar_cotacoes=False)
+>>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
         chamada = self.api_ok()
         resposta = self.client.get(reverse('pagina_inicial'))
-        self.assertNotContains(resposta, 'Cotações')
+        self.assertNotContains(resposta, 'Moedas hoje')
         chamada.assert_not_called()
 
     def test_pagina_inicial_indica_por_onde_comecar(self):
+        self.api_ok()
         Modulo.objects.create(nome_modulo='Entendendo o seu Orçamento', descricao_modulo='x', slug='entendendo-o-seu-orcamento')
         resposta = self.client.get(reverse('pagina_inicial'))
         self.assertContains(resposta, 'Por onde começar')
@@ -301,10 +326,10 @@ class QuemSomosTests(TestCase):
     @sem_cotacoes
     def test_pagina_abre_e_aparece_no_menu(self, _):
         resposta = self.client.get(reverse('quem_somos'))
-        self.assertContains(resposta, 'Seja um educador parceiro')
+        self.assertNotContains(resposta, 'educador')
         self.assertContains(resposta, 'mailto:gocashsuporte@gmail.com')
         self.assertContains(self.client.get(reverse('pagina_inicial')), reverse('quem_somos'))
 
     def test_link_tambem_no_painel(self):
-        self.client.force_login(criar_usuario('edu', PerfilUsuario.EDUCADOR))
+        self.client.force_login(criar_usuario('adm', PerfilUsuario.ADMINISTRADOR))
         self.assertContains(self.client.get(reverse('admin:index')), reverse('quem_somos'))
