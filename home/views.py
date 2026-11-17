@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from modulos.models import Modulo
 
-from .cotacoes import buscar_cotacoes
+from .cotacoes import SLUG_DO_MODULO, buscar_cotacoes
 
 TRILHA = [
     ('entendendo-o-seu-orcamento', 'anote o que entra e o que sai. É a base de todo o resto.'),
@@ -26,7 +26,7 @@ def pagina_inicial(request):
     ]
     contexto = {'passos': passos}
 
-    modulo_cotacoes = Modulo.objects.filter(mostrar_cotacoes=True).order_by('nome_modulo').first()
+    modulo_cotacoes = Modulo.objects.filter(slug=SLUG_DO_MODULO).first()
     if modulo_cotacoes:
         cotacoes, _ = buscar_cotacoes()
         contexto['modulo_cotacoes'] = modulo_cotacoes

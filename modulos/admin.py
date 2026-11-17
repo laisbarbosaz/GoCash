@@ -4,7 +4,7 @@ from .models import Modulo, ConteudoModulo
 
 @admin.register(Modulo)
 class ModuloAdmin(admin.ModelAdmin):
-    list_display = ('nome_modulo', 'slug', 'mostrar_cotacoes')
+    list_display = ('nome_modulo', 'slug')
     prepopulated_fields = {'slug': ('nome_modulo',)}
 
 
