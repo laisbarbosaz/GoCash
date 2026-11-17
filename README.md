@@ -38,11 +38,7 @@ Plataforma web gratuita de educação financeira para jovens a partir de 16 anos
 ### Persistência e regras de negócio
 - Todos os dados ficam no PostgreSQL: usuários, perfis, módulos, atividades, tentativas, respostas e progresso.
 - Regras aplicadas: limite de 3 tentativas, Cashs pela melhor tentativa, status da atividade (não iniciada, em andamento, concluída), um único Administrador principal, ranking só com consentimento e exclusão automática de contas desativadas há mais de 6 meses.
-<<<<<<< HEAD
 - 129 testes automatizados (`python manage.py test`).
-=======
-- 128 testes automatizados (`python manage.py test`).
->>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
 
 ## Como rodar localmente
 1. Ative o ambiente virtual: `venv\Scripts\Activate`
