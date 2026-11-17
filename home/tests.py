@@ -236,7 +236,11 @@ class CotacoesNoModuloTests(TestCase):
         from django.core.cache import cache
         cache.clear()
         self.modulo = Modulo.objects.create(
+<<<<<<< HEAD
             nome_modulo='Economia Global', descricao_modulo='x', slug='economia-global',
+=======
+            nome_modulo='Dólar e câmbio', descricao_modulo='x', mostrar_cotacoes=True,
+>>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
         )
         self.resposta_api = {
             'USDBRL': {
@@ -286,6 +290,7 @@ class CotacoesNoModuloTests(TestCase):
         self.assertNotContains(resposta, '<strong>Dólar</strong>')
         self.assertContains(resposta, reverse('detalhe_modulo', args=[self.modulo.slug]))
 
+<<<<<<< HEAD
     def test_cadastro_de_modulo_nao_tem_mais_a_opcao_de_cotacoes(self):
         self.client.force_login(criar_usuario('adm', PerfilUsuario.ADMINISTRADOR))
         resposta = self.client.get(reverse('admin:modulos_modulo_add'))
@@ -294,6 +299,10 @@ class CotacoesNoModuloTests(TestCase):
 
     def test_sem_modulo_de_cotacoes_a_home_nao_chama_a_api(self):
         self.modulo.delete()
+=======
+    def test_sem_modulo_de_cotacoes_a_home_nao_chama_a_api(self):
+        Modulo.objects.filter(pk=self.modulo.pk).update(mostrar_cotacoes=False)
+>>>>>>> 590b5c549d2da81969b5f9e3bacb31f9dc6b298f
         chamada = self.api_ok()
         resposta = self.client.get(reverse('pagina_inicial'))
         self.assertNotContains(resposta, 'Moedas hoje')
