@@ -1,9 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-<br>
-<hr>
-<h1 style="color: #000000; font-size: 20px;">{{ modulo.nome_modulo }}</h1>
-<p class="card-text" style="color: #000000; font-size: 18px;">{{ modulo.descricao_modulo }}</p>
+<style>
+    .modulo-topo { margin: 2rem 0 1.5rem; }
+    .modulo-topo .voltar { color: #12460b; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; font-size: 0.95rem; }
+    .modulo-topo h1 { color: #0b2608; font-size: 1.9rem; font-weight: 700; margin: 0.75rem 0 0.5rem; }
+    .modulo-topo p { color: #1f2a1d; margin: 0; max-width: 760px; }
+    .modulo-leitura { display: grid; grid-template-columns: 260px 1fr; gap: 2.5rem; align-items: start; }
+    .sumario-partes { border-right: 1px solid #cfdccb; padding-right: 1.5rem; }
+    .sumario-partes .contagem { font-size: 0.95rem; font-weight: 600; color: #12460b; margin: 0 0 0.5rem; }
+    .barra-leitura { height: 6px; background: #e3ece1; border-radius: 3px; overflow: hidden; margin-bottom: 1.25rem; }
+    .barra-leitura span { display: block; height: 100%; background: #12460b; }
+    .sumario-partes ol { list-style: none; padding: 0; margin: 0; }
+    .sumario-partes li { margin-bottom: 0.6rem; font-size: 0.95rem; line-height: 1.35; }
+    .sumario-partes a { color: #12460b; text-decoration: none; }
+    .sumario-partes a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .sumario-partes .atual { font-weight: 700; color: #0b2608; }
+    .sumario-partes .bloqueada { color: #8a9687; }
+    .sumario-partes .marca { display: inline-block; width: 1.4rem; color: #12460b; }
+    .sumario-partes .bloqueada .marca { color: #8a9687; }
+    .parte-conteudo h2 { color: #12460b; font-size: 1.5rem; font-weight: 700; margin: 0 0 1rem; }
+    .parte-conteudo .texto { color: #1f2a1d; font-size: 1.05rem; line-height: 1.7; max-width: 760px; }
+    .navegacao-partes { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 2rem; padding-top: 1.25rem; border-top: 1px solid #cfdccb; }
+    .navegacao-partes .anterior { color: #12460b; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+    .navegacao-partes .proxima { margin-left: auto; background: #12460b; color: #ffffff; font-weight: 600; padding: 10px 24px; border-radius: 8px; text-decoration: none; }
+    .navegacao-partes .proxima:hover { background: #0b2608; color: #ffffff; }
+    .chamada-atividade { background: #eafbe7; border-radius: 12px; padding: 1.25rem 1.5rem; margin: 2rem 0 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .chamada-atividade p { margin: 0; color: #12460b; font-weight: 600; }
+    .chamada-atividade a { background: #12460b; color: #ffffff !important; border-radius: 8px; padding: 10px 24px; font-weight: 600; text-decoration: none; }
+    .chamada-atividade a:hover { background: #0b2608; }
+    .chamada-atividade.bloqueada { background: #f1f4f0; }
+    .chamada-atividade.bloqueada p { color: #4a5747; font-weight: 400; }
+    @media (max-width: 768px) {
+        .modulo-leitura { grid-template-columns: 1fr; gap: 1.5rem; }
+        .sumario-partes { border-right: none; padding-right: 0; padding-bottom: 1rem; border-bottom: 1px solid #cfdccb; }
+    }
+</style>
+
+<div class="modulo-topo">
+    <a href="{% url 'listar_modulos' %}" class="voltar">Todos os módulos</a>
+    <h1>{{ modulo.nome_modulo }}</h1>
+    <p>{{ modulo.descricao_modulo }}</p>
+</div>
 
 {% if mostrar_cotacoes %}
 <style>
@@ -63,37 +100,65 @@
     {% endif %}
 </section>
 {% endif %}
-{% for conteudo in modulo.conteudos.all %}
-    <div class="card">
-        <div class="card-body">
-            <h4 class="card-title" style="color: #12460b; font-size: large;">{{ conteudo.titulo_conteudo }}</h4>
-            {{ conteudo.explicacao_conteudo|urlize|linebreaks }}
+
+{% if parte %}
+<div class="modulo-leitura">
+    <nav class="sumario-partes" aria-label="Partes do módulo">
+        <p class="contagem">Parte {{ numero }} de {{ total }}</p>
+        <div class="barra-leitura" role="progressbar" aria-valuenow="{{ numero }}" aria-valuemin="1" aria-valuemax="{{ total }}" aria-label="Progresso no módulo"><span style="width: {{ percentual }}%"></span></div>
+        <ol>
+            {% for item in sumario %}
+                {% if item.atual %}
+                    <li class="atual" aria-current="step"><span class="marca">{{ item.numero }}.</span>{{ item.titulo }}</li>
+                {% elif item.lida %}
+                    <li><a href="?parte={{ item.numero }}"><span class="marca"><i class="bi bi-check2" aria-hidden="true"></i></span>{{ item.titulo }}</a><span class="visually-hidden"> (lida)</span></li>
+                {% else %}
+                    <li class="bloqueada"><span class="marca"><i class="bi bi-lock" aria-hidden="true"></i></span>{{ item.titulo }}<span class="visually-hidden"> (ainda não liberada)</span></li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+
+    <div>
+        <article class="parte-conteudo">
+            <h2>{{ parte.titulo_conteudo }}</h2>
+            <div class="texto">{{ parte.explicacao_conteudo|urlize|linebreaks }}</div>
+        </article>
+
+        <div class="navegacao-partes">
+            {% if anterior %}<a href="?parte={{ anterior }}" class="anterior">Parte anterior</a>{% endif %}
+            {% if proxima %}<a href="?parte={{ proxima }}" class="proxima">Próxima parte</a>{% endif %}
         </div>
+
+        {% if modulo.atividade %}
+            {% if leu_tudo %}
+            <div class="chamada-atividade">
+                <p><i class="bi bi-pencil-square"></i> Você leu todas as partes. Agora teste o que aprendeu.</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'responder_atividade' modulo.slug %}">Fazer a atividade</a>
+                {% else %}
+                    <a href="{% url 'responder_atividade' modulo.slug %}"><i class="bi bi-lock-fill"></i> Entrar para fazer a atividade</a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="chamada-atividade bloqueada">
+                <p><i class="bi bi-lock"></i> A atividade deste módulo libera quando você chegar à última parte.</p>
+            </div>
+            {% endif %}
+        {% endif %}
     </div>
-{% endfor %}
-
-<style>
-    .chamada-atividade {
-        background: #eafbe7; border-radius: 16px; padding: 1.5rem;
-        margin: 2rem 0; display: flex; flex-wrap: wrap; align-items: center;
-        justify-content: space-between; gap: 12px;
-    }
-    .chamada-atividade p { margin: 0; color: #12460b; font-weight: 600; }
-    .chamada-atividade a {
-        background: #12460b; color: #ffffff !important; border-radius: 30px;
-        padding: 10px 26px; font-weight: 600; text-decoration: none;
-    }
-    .chamada-atividade a:hover { background: #1b5e12; }
-</style>
-
+</div>
+{% else %}
+<p>Este módulo ainda não tem conteúdo.</p>
 {% if modulo.atividade %}
 <div class="chamada-atividade">
-    <p><i class="bi bi-pencil-square"></i> Terminou de estudar? Teste o que aprendeu neste módulo.</p>
+    <p><i class="bi bi-pencil-square"></i> Teste o que você sabe sobre este tema.</p>
     {% if user.is_authenticated %}
         <a href="{% url 'responder_atividade' modulo.slug %}">Fazer a atividade</a>
     {% else %}
         <a href="{% url 'responder_atividade' modulo.slug %}"><i class="bi bi-lock-fill"></i> Entrar para fazer a atividade</a>
     {% endif %}
 </div>
+{% endif %}
 {% endif %}
 {% endblock %}

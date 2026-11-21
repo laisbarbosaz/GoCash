@@ -90,11 +90,22 @@ class MinhasAtividadesTests(TestCase):
         self.assertEqual(painel['dificuldades'], [])
 
     @sem_cotacoes
-    def test_aparece_embaixo_do_ranking(self, _):
+    def test_painel_vem_antes_do_ranking(self, _):
         self.client.force_login(self.aluno)
         html = self.client.get(reverse('pagina_inicial')).content.decode()
-        self.assertLess(html.index('Seja bem vindo'), html.index('Ranking de Cashs'))
-        self.assertLess(html.index('Ranking de Cashs'), html.index('Minhas atividades'))
+        self.assertLess(html.index('Olá, '), html.index('Minhas atividades'))
+        self.assertLess(html.index('Minhas atividades'), html.index('Ranking de Cashs'))
+
+    @sem_cotacoes
+    def test_visitante_ve_como_funciona_e_convite_para_cadastro(self, _):
+        resposta = self.client.get(reverse('pagina_inicial'))
+        self.assertContains(resposta, 'Como funciona')
+        self.assertContains(resposta, 'Criar conta grátis')
+        self.assertContains(resposta, reverse('cadastro'))
+        self.client.force_login(self.aluno)
+        resposta = self.client.get(reverse('pagina_inicial'))
+        self.assertNotContains(resposta, 'Como funciona')
+        self.assertNotContains(resposta, 'Criar conta grátis')
 
     @sem_cotacoes
     def test_visitante_e_equipe_nao_veem_minhas_atividades(self, _):

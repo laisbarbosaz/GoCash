@@ -1,40 +1,92 @@
 {% extends "base.html" %}
 {% load static dashboards %}
 {% block content %}
-<link rel="stylesheet" href="{% static 'home/css/home.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'home/css/home.css' %}?v=6">
 <link rel="stylesheet" href="{% static 'home/css/dashboard.css' %}?v=4">
-<br>
-<div class="hero-gocash">
-    <h1>Seja bem vindo</h1>
-    <p class="lead">Sua plataforma de educação financeira. <br> Aprenda sobre orçamento, consumo consciente e planejamento financeiro através dos nossos módulos.</p>
-    <a href="{% url 'listar_modulos' %}" class="btn btn-hero">Explorar módulos</a>
-</div>
+
+{% if user.is_authenticated %}
+<section class="hero-gocash hero-logado">
+    <p class="hero-olho">Bem-vindo de volta</p>
+    <h1>Olá, {{ user.first_name|default:user.username }}</h1>
+    <p class="lead">Continue de onde parou. Cada atividade que você faz vira Cashs e mostra o que vale revisar.</p>
+    <div class="hero-acoes">
+        <a href="{% url 'listar_atividades' %}" class="btn btn-hero">Ir para as atividades</a>
+        <a href="{% url 'listar_modulos' %}" class="link-hero">Ver os módulos</a>
+    </div>
+</section>
+
+{% if not user.is_staff %}
+    {% dashboard_aluno user %}
+{% endif %}
 
 {% ranking_alunos user %}
 
-{% if user.is_authenticated and not user.is_staff %}
-    {% dashboard_aluno user %}
-{% endif %}
-<br>
-<section class="educacao-financeira por-onde-comecar" aria-labelledby="educacao-titulo">
-    <h3 id="educacao-titulo" class="secao-titulo">Por que aprender sobre dinheiro?</h3>
-    <p>Na escola quase ninguém aprende a montar um orçamento, entender os juros do cartão ou desconfiar de um Pix suspeito. Mas são essas coisas que mais pesam no dia a dia. Quem entende o básico gasta melhor, se endivida menos e consegue guardar para o que quer, seja o primeiro celular, uma viagem ou sair de casa.</p>
+{% else %}
+<section class="hero-gocash hero-visitante">
+    <div class="hero-texto">
+        <p class="hero-olho">Educação financeira gratuita</p>
+        <h1>Dinheiro também se aprende.</h1>
+        <p class="lead">Fazer o dinheiro durar até o fim do mês, usar o cartão sem pagar juros, comprar e pagar pela internet sem riscos. Ninguém ensina isso na escola, mas dá para aprender aqui, em poucos minutos por dia.</p>
+        <div class="hero-acoes">
+            <a href="{% url 'cadastro' %}" class="btn btn-hero">Criar conta grátis</a>
+            <a href="{% url 'listar_modulos' %}" class="link-hero">Ver os módulos sem cadastro</a>
+        </div>
+    </div>
+    <div class="hero-lista">
+        <p class="hero-lista-titulo">No Go Cash você aprende a:</p>
+        <ul>
+            <li><i class="bi bi-check2" aria-hidden="true"></i>montar o seu primeiro orçamento</li>
+            <li><i class="bi bi-check2" aria-hidden="true"></i>entender os juros do cartão</li>
+            <li><i class="bi bi-check2" aria-hidden="true"></i>lidar com golpes financeiros</li>
+            <li><i class="bi bi-check2" aria-hidden="true"></i>começar a guardar e investir</li>
+        </ul>
+        <p class="hero-lista-nota">Cada acerto nos quizzes vira Cashs.</p>
+    </div>
+</section>
 
+<section class="contexto" aria-labelledby="contexto-titulo">
+    <h2 id="contexto-titulo">Por que começar agora?</h2>
+    <p>É com a mesada, o estágio ou o primeiro salário que os hábitos com dinheiro se formam. Quem aprende cedo a separar uma parte para guardar, comparar antes de comprar e ler as letras miúdas de um parcelamento ganha liberdade para escolher o que fazer depois. Também conta saber se proteger: senhas fortes, desconfiar de links e promoções boas demais, conferir o site antes de pagar.</p>
+    <p>E não precisa ser bom em matemática. Os módulos partem de situações do dia a dia e vão direto ao ponto.</p>
+</section>
+
+<section class="como-funciona" aria-labelledby="como-titulo">
+    <h2 id="como-titulo">Como funciona</h2>
+    <ol class="passos">
+        <li>
+            <h3>Estude</h3>
+            <p>Cada módulo explica um tema em textos curtos e diretos. Qualquer pessoa pode ler, mesmo sem conta.</p>
+        </li>
+        <li>
+            <h3>Pratique</h3>
+            <p>No fim do módulo tem um quiz. Você tem até 3 tentativas, e a resposta certa só aparece na última, para dar tempo de voltar ao conteúdo.</p>
+        </li>
+        <li>
+            <h3>Acompanhe</h3>
+            <p>Cada 10% de acerto vale 10 Cashs. O seu painel mostra o que você já fez e as perguntas em que mais errou. Se quiser, você aparece no ranking.</p>
+        </li>
+    </ol>
+</section>
+
+{% ranking_alunos user %}
+{% endif %}
+
+<section class="educacao-financeira por-onde-comecar" aria-labelledby="comecar-titulo">
     {% if passos %}
-        <h4>Por onde começar</h4>
+        <h2 id="comecar-titulo">Por onde começar</h2>
+        <p>Uma ordem sugerida para quem está começando. Cada módulo leva poucos minutos.</p>
         <ol>
             {% for passo in passos %}
                 <li><a href="{% url 'detalhe_modulo' passo.modulo.slug %}">{{ passo.modulo.nome_modulo }}</a>: {{ passo.texto }}</li>
             {% endfor %}
         </ol>
     {% endif %}
-
     <p><a href="{% url 'listar_modulos' %}">Ver todos os módulos</a></p>
 </section>
 
 {% if modulo_cotacoes %}
 <section class="moedas-hoje" aria-labelledby="moedas-titulo">
-    <h4 id="moedas-titulo">Moedas hoje</h4>
+    <h2 id="moedas-titulo">Moedas hoje</h2>
     {% if moedas %}
         <ul>
             {% for moeda in moedas %}
@@ -44,6 +96,14 @@
         <p class="fonte">Valor de compra em reais. Fonte: AwesomeAPI{% if moedas.0.atualizada %}, atualizado em {{ moedas.0.atualizada }}{% endif %}.</p>
     {% endif %}
     <p>Por que o dólar sobe e desce todo dia? O que é bitcoin e por que ele varia tanto? E o que isso tem a ver com o preço das coisas no mercado? <a href="{% url 'detalhe_modulo' modulo_cotacoes.slug %}">Entenda no módulo {{ modulo_cotacoes.nome_modulo }}</a>.</p>
+</section>
+{% endif %}
+
+{% if not user.is_authenticated %}
+<section class="chamada-final" aria-labelledby="chamada-titulo">
+    <h2 id="chamada-titulo">Comece hoje, de graça</h2>
+    <p>Para criar a conta pedimos só nome, nome de usuário, e-mail e senha. Você pode excluir a conta e todos os seus dados quando quiser, direto no seu perfil. Saiba mais na <a href="{% url 'politica_de_privacidade' %}">Política de Privacidade</a>.</p>
+    <a href="{% url 'cadastro' %}" class="btn btn-chamada">Criar minha conta</a>
 </section>
 {% endif %}
 {% endblock %}

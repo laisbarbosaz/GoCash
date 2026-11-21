@@ -356,3 +356,52 @@ class PerguntaNoPainelTests(TestCase):
         }
         self.client.post(reverse('admin:atividades_pergunta_add'), dados)
         self.assertEqual(list(atividade.perguntas.values_list('enunciado', flat=True)), ['Primeira', 'Segunda'])
+
+
+class ValidacaoDasAlternativasTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth.models import User as Usuario
+        modulo = Modulo.objects.create(nome_modulo='Orçamento', descricao_modulo='x')
+        self.atividade = Atividade.objects.create(modulo=modulo, titulo='Quiz')
+        self.client.force_login(Usuario.objects.create_superuser('adm', 'adm@teste.com', 'SenhaForte!123'))
+
+    def enviar(self, alternativas):
+        dados = {
+            'atividade': self.atividade.pk,
+            'enunciado': 'Pergunta nova',
+            'alternativas-TOTAL_FORMS': str(len(alternativas)),
+            'alternativas-INITIAL_FORMS': '0',
+            '_save': 'Salvar',
+        }
+        for i, (texto, correta) in enumerate(alternativas):
+            dados[f'alternativas-{i}-texto'] = texto
+            if correta:
+                dados[f'alternativas-{i}-correta'] = 'on'
+        return self.client.post(reverse('admin:atividades_pergunta_add'), dados)
+
+    def test_recusa_pergunta_com_uma_alternativa(self):
+        resposta = self.enviar([('Única', True)])
+        self.assertContains(resposta, 'Cada pergunta deve ter pelo menos 2 alternativas.')
+        self.assertFalse(Pergunta.objects.exists())
+
+    def test_recusa_pergunta_sem_alternativa_correta(self):
+        resposta = self.enviar([('A', False), ('B', False)])
+        self.assertContains(resposta, 'Cada pergunta deve ter exatamente 1 alternativa correta.')
+        self.assertFalse(Pergunta.objects.exists())
+
+    def test_recusa_pergunta_com_duas_corretas(self):
+        resposta = self.enviar([('A', True), ('B', True)])
+        self.assertContains(resposta, 'Cada pergunta deve ter exatamente 1 alternativa correta.')
+        self.assertFalse(Pergunta.objects.exists())
+
+    def test_aceita_pergunta_valida(self):
+        resposta = self.enviar([('Certa', True), ('Errada', False)])
+        self.assertEqual(resposta.status_code, 302)
+        self.assertEqual(Pergunta.objects.get().alternativas.count(), 2)
+
+    def test_listas_do_painel_abrem(self):
+        pergunta = Pergunta.objects.create(atividade=self.atividade, enunciado='Pergunta?')
+        Alternativa.objects.create(pergunta=pergunta, texto='Certa', correta=True)
+        for nome in ('pergunta', 'atividade', 'tentativa'):
+            resposta = self.client.get(reverse(f'admin:atividades_{nome}_changelist'))
+            self.assertEqual(resposta.status_code, 200)

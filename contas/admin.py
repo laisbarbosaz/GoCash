@@ -171,7 +171,7 @@ admin.site.register(User, UsuarioAdminCustomizado)
 
 
 ORDEM_DO_MENU = {
-    'modulos': ['Modulo', 'ConteudoModulo'],
+    'modulos': ['Modulo', 'ConteudoModulo', 'LeituraConteudo'],
     'atividades': ['Atividade', 'Pergunta', 'ProgressoAtividade', 'Tentativa'],
     'contas': ['User', 'ConfiguracaoSite'],
 }

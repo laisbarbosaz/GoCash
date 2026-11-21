@@ -13,7 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .limpeza import excluir_contas_desativadas
-from .models import ConfiguracaoSite, PerfilUsuario
+from .models import CodigoVerificacao, ConfiguracaoSite, PerfilUsuario
 from .papeis import definir_perfil, tornar_principal
 
 SENHA = 'SenhaForte!123'
@@ -571,3 +571,76 @@ class PermissoesEmPortuguesTests(TestCase):
         self.assertEqual(Permission.objects.get(codename='add_atividade').name, 'Pode adicionar Atividade')
         self.assertFalse(Permission.objects.filter(name__startswith='Can ').exists())
 
+
+
+class CodigoDeVerificacaoTests(TestCase):
+    def setUp(self):
+        self.usuario = criar_usuario('aluno')
+        self.client.post(reverse('login'), {'username': 'aluno', 'password': SENHA})
+
+    def codigo_enviado(self):
+        return CodigoVerificacao.objects.filter(usuario=self.usuario).latest('criado_em')
+
+    def test_reenviar_gera_um_codigo_novo(self):
+        primeiro = self.codigo_enviado()
+        resposta = self.client.get(reverse('reenviar_codigo'), follow=True)
+        self.assertRedirects(resposta, reverse('verificar_codigo'))
+        self.assertContains(resposta, 'Um novo código foi enviado')
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertNotEqual(self.codigo_enviado().pk, primeiro.pk)
+
+    def test_reenviar_sem_passar_pelo_login_volta_para_o_login(self):
+        self.client.logout()
+        resposta = self.client.get(reverse('reenviar_codigo'))
+        self.assertRedirects(resposta, reverse('login'))
+
+    def test_tela_do_codigo_sem_login_volta_para_o_login(self):
+        self.client.logout()
+        self.assertRedirects(self.client.get(reverse('verificar_codigo')), reverse('login'))
+        self.assertRedirects(self.client.post(reverse('verificar_codigo'), {'codigo': '123456'}), reverse('login'))
+
+    def test_codigo_errado_nao_entra(self):
+        certo = self.codigo_enviado().codigo
+        errado = '000000' if certo != '000000' else '111111'
+        resposta = self.client.post(reverse('verificar_codigo'), {'codigo': errado})
+        self.assertContains(resposta, 'Código inválido ou expirado.')
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_codigo_expirado_nao_entra(self):
+        codigo = self.codigo_enviado()
+        CodigoVerificacao.objects.filter(pk=codigo.pk).update(criado_em=timezone.now() - timedelta(minutes=6))
+        resposta = self.client.post(reverse('verificar_codigo'), {'codigo': codigo.codigo})
+        self.assertContains(resposta, 'Código inválido ou expirado.')
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_conta_desativada_durante_o_login_nao_entra(self):
+        codigo = self.codigo_enviado().codigo
+        User.objects.filter(pk=self.usuario.pk).update(is_active=False)
+        resposta = self.client.post(reverse('verificar_codigo'), {'codigo': codigo}, follow=True)
+        self.assertRedirects(resposta, reverse('login'))
+        self.assertContains(resposta, 'Sua conta está desativada.')
+
+    def test_conta_sem_email_nao_recebe_codigo(self):
+        sem_email = User.objects.create_user('sememail', '', SENHA)
+        resposta = self.client.post(reverse('login'), {'username': 'sememail', 'password': SENHA})
+        self.assertContains(resposta, 'não possui e-mail cadastrado')
+        self.assertFalse(CodigoVerificacao.objects.filter(usuario=sem_email).exists())
+
+
+class PaginasDaContaTests(TestCase):
+    def test_termos_de_uso_abre(self):
+        resposta = self.client.get(reverse('termos_de_uso'))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertContains(resposta, 'Termos de Uso')
+
+    def test_politica_de_privacidade_abre(self):
+        resposta = self.client.get(reverse('politica_de_privacidade'))
+        self.assertEqual(resposta.status_code, 200)
+        self.assertContains(resposta, 'Política de Privacidade')
+
+    def test_sair_encerra_a_sessao(self):
+        self.client.force_login(criar_usuario('aluno'))
+        resposta = self.client.get(reverse('logout'), follow=True)
+        self.assertRedirects(resposta, reverse('pagina_inicial'))
+        self.assertContains(resposta, 'Você saiu da sua conta com sucesso!')
+        self.assertNotIn('_auth_user_id', self.client.session)

@@ -545,3 +545,11 @@ ul.messagelist li {
         padding-right: 16px;
     }
 }
+
+.inline-group .tabular tr.has_original td {
+    padding-top: 10px;
+}
+
+.inline-group .tabular td.original p {
+    display: none;
+}

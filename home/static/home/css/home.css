@@ -1,25 +1,39 @@
 .hero-gocash {
-    background: linear-gradient(135deg, #12460b, #2e8b30);
+    background: #12460b;
     color: #ffffff;
-    border-radius: 20px;
-    padding: 4rem 2rem;
+    border-radius: 16px;
+    padding: 3.5rem 3rem;
     margin-top: 2rem;
     margin-bottom: 3rem;
-    text-align: center;
+}
+
+.hero-gocash .hero-olho {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e8c547;
 }
 
 .hero-gocash h1 {
     font-weight: 700;
-    font-size: 2.5rem;
+    font-size: 2.75rem;
+    line-height: 1.15;
     margin-bottom: 1rem;
 }
 
 .hero-gocash .lead {
     font-size: 1.15rem;
-    opacity: 0.95;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 680px;
+    margin-bottom: 0;
+    color: #eaf3e7;
+}
+
+.hero-acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 28px;
+    margin-top: 2rem;
 }
 
 .hero-gocash .btn-hero {
@@ -28,34 +42,145 @@
     font-weight: 700;
     font-size: 1.05rem;
     border: none;
-    padding: 12px 36px;
-    border-radius: 30px;
-    margin-top: 1.5rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s ease-in-out;
+    padding: 12px 28px;
+    border-radius: 8px;
 }
 
-.hero-gocash .btn-hero:hover {
+.hero-gocash .btn-hero:hover,
+.hero-gocash .btn-hero:focus {
     background: #eafbe7;
     color: #12460b;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.hero-gocash .link-hero {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+.hero-gocash .link-hero:hover {
+    color: #eafbe7;
+}
+
+.hero-visitante {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 3rem;
+    align-items: center;
+}
+
+.hero-lista {
+    padding-left: 2.5rem;
+    border-left: 1px solid #2e5a27;
+}
+
+.hero-lista-titulo {
+    margin: 0 0 1rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.hero-lista ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.hero-lista li {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0.75rem;
+    font-size: 1.05rem;
+    color: #eaf3e7;
+}
+
+.hero-lista li i {
+    color: #e8c547;
+    font-size: 1.2rem;
+    line-height: 1.4;
+}
+
+.hero-lista-nota {
+    margin: 1.25rem 0 0;
+    font-size: 0.95rem;
+    color: #e8c547;
+}
+
+.hero-logado {
+    padding: 2.5rem 3rem;
+}
+
+.hero-logado h1 {
+    font-size: 2.25rem;
 }
 
 .badge.bg-success {
     background-color: #12460b !important;
 }
 
-.por-onde-comecar {
-    margin: 0 0 3rem;
+.contexto {
+    max-width: 820px;
+    margin: 0 0 3.5rem;
     color: #1f2a1d;
 }
 
-.por-onde-comecar h2 {
-    margin: 0 0 8px;
-    font-size: 1.35rem;
+.contexto p {
+    color: #1f2a1d;
+}
+
+.contexto h2,
+.como-funciona h2,
+.por-onde-comecar h2,
+.moedas-hoje h2,
+.chamada-final h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #0b2608;
+}
+
+.como-funciona {
+    margin: 0 0 3.5rem;
+    color: #1f2a1d;
+}
+
+.como-funciona .passos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: passo;
+}
+
+.como-funciona .passos li {
+    counter-increment: passo;
+    padding-top: 1rem;
+    border-top: 3px solid #12460b;
+    color: #1f2a1d;
+}
+
+.como-funciona .passos h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #12460b;
+}
+
+.como-funciona .passos h3::before {
+    content: counter(passo) ". ";
+}
+
+.como-funciona .passos p {
+    margin: 0;
+    color: #1f2a1d;
+}
+
+.por-onde-comecar {
+    margin: 3rem 0;
+    color: #1f2a1d;
 }
 
 .por-onde-comecar ol {
@@ -80,10 +205,6 @@
     padding-top: 1.5rem;
     border-top: 1px solid #cfdccb;
     color: #1f2a1d;
-}
-
-.moedas-hoje h4 {
-    color: #0b2608;
 }
 
 .moedas-hoje ul {
@@ -117,4 +238,71 @@
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
+}
+
+.chamada-final {
+    margin: 0 0 3rem;
+    padding: 2rem 2.5rem;
+    background: #eaf3e7;
+    border-radius: 16px;
+    color: #1f2a1d;
+}
+
+.chamada-final p {
+    max-width: 760px;
+    color: #1f2a1d;
+}
+
+.chamada-final p a {
+    color: #12460b;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.chamada-final .btn-chamada {
+    background: #12460b;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 8px;
+}
+
+.chamada-final .btn-chamada:hover,
+.chamada-final .btn-chamada:focus {
+    background: #0b2608;
+    color: #ffffff;
+}
+
+@media (max-width: 992px) {
+    .hero-visitante {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .hero-lista {
+        padding-left: 0;
+        padding-top: 1.75rem;
+        border-left: none;
+        border-top: 1px solid #2e5a27;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-gocash {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .hero-gocash h1 {
+        font-size: 2rem;
+    }
+
+    .como-funciona .passos {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .chamada-final {
+        padding: 1.5rem;
+    }
 }

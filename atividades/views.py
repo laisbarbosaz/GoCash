@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+
+from modulos.leitura import leu_tudo, primeira_parte_nao_lida
 
 from .models import Atividade, ProgressoAtividade, Resposta, Tentativa
 
@@ -71,6 +74,11 @@ def responder_atividade(request, slug):
         return redirect('listar_atividades')
 
     tentativas_feitas = Tentativa.objects.filter(usuario=request.user, atividade=atividade).count()
+    if not tentativas_feitas and not leu_tudo(request.user, atividade.modulo):
+        messages.info(request, "Leia todas as partes do módulo antes de fazer a atividade.")
+        parte = primeira_parte_nao_lida(request.user, atividade.modulo)
+        return redirect(f"{reverse('detalhe_modulo', args=[atividade.modulo.slug])}?parte={parte}")
+
     if tentativas_feitas >= Atividade.MAX_TENTATIVAS:
         messages.warning(
             request,
