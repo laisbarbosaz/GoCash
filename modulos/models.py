@@ -46,3 +46,29 @@ class ConteudoModulo(models.Model):
 
     def __str__(self):
         return self.titulo_conteudo
+
+
+class LeituraConteudo(models.Model):
+    usuario = models.ForeignKey(
+        'auth.User',
+        on_delete=models.CASCADE,
+        related_name='leituras',
+        verbose_name='Aluno',
+    )
+    conteudo = models.ForeignKey(
+        ConteudoModulo,
+        on_delete=models.CASCADE,
+        related_name='leituras',
+        verbose_name='Conteúdo',
+    )
+    lida_em = models.DateTimeField('Lida em', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Leitura de conteúdo'
+        verbose_name_plural = 'Leituras de conteúdos'
+        constraints = [
+            models.UniqueConstraint(fields=['usuario', 'conteudo'], name='leitura_unica_por_aluno_e_conteudo'),
+        ]
+
+    def __str__(self):
+        return f"{self.usuario} - {self.conteudo}"
