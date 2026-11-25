@@ -1,3 +1,5 @@
+import logging
+import os
 from datetime import datetime
 
 import requests
@@ -7,7 +9,17 @@ SLUG_DO_MODULO = 'economia-global'
 MOEDAS = 'USD-BRL,EUR-BRL,BTC-BRL'
 URL_API = f'https://economia.awesomeapi.com.br/json/last/{MOEDAS}'
 CHAVE_CACHE = 'cotacoes_do_dia'
-SEGUNDOS_EM_CACHE = 120
+SEGUNDOS_EM_CACHE = 300
+
+logger = logging.getLogger(__name__)
+
+
+def _cabecalhos():
+    cabecalhos = {'User-Agent': 'GoCash/1.0 (+https://gocash-qv0v.onrender.com)'}
+    token = os.environ.get('AWESOMEAPI_TOKEN')
+    if token:
+        cabecalhos['x-api-key'] = token
+    return cabecalhos
 
 
 def _data_legivel(texto):
@@ -23,7 +35,7 @@ def buscar_cotacoes():
         return cotacoes, False
 
     try:
-        resposta = requests.get(URL_API, timeout=5)
+        resposta = requests.get(URL_API, headers=_cabecalhos(), timeout=5)
         resposta.raise_for_status()
         cotacoes = [
             {
@@ -38,7 +50,8 @@ def buscar_cotacoes():
             }
             for valor in resposta.json().values()
         ]
-    except (requests.RequestException, ValueError, KeyError, TypeError, AttributeError):
+    except (requests.RequestException, ValueError, KeyError, TypeError, AttributeError) as erro:
+        logger.warning('Não foi possível buscar as cotações: %s', erro)
         return [], True
 
     cache.set(CHAVE_CACHE, cotacoes, SEGUNDOS_EM_CACHE)
